@@ -76,7 +76,7 @@
                             onmouseover="this.style.background='#f8fafc'"
                             onmouseout="this.style.background='transparent'">
                             <td style="padding:15px 12px; text-align:center; font-weight:500;">{{ $index + 1 }}</td>
-                            <td style="padding:15px 12px; font-weight:500;">{{ $item->nama_lengkap }}</td>
+                            <td style="padding:15px 12px; font-weight:500;">{{ $item->nama_karyawan }}</td>
                             <td style="padding:15px 12px;">{{ $item->no_nik ?? '-' }}</td>
                             <td style="padding:15px 12px;">{{ $item->posisi->nama_posisi ?? '-' }}</td>
                             <td style="padding:15px 12px; text-align:right; font-weight:500; color:#059669;">

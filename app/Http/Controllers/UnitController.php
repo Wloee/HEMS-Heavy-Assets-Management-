@@ -18,6 +18,7 @@ class UnitController extends Controller
      */
     public function index(Request $request)
     {
+
         $query = DB::table('unit as u')
             ->leftJoin('jenis_unit as ju', 'u.jenis_unit_id', '=', 'ju.id_jenis_unit')
             ->leftJoin('pemilik_unit as pu', 'u.pemilik_id', '=', 'pu.id_pemilik')
@@ -25,8 +26,15 @@ class UnitController extends Controller
                 'u.*',
                 'ju.nama_jenis',
                 'pu.nama_pemilik'
-            )
-            ->where('u.is_active', 1);
+            );
+        // Filter berdasarkan route name
+
+        if ($request->route()->getName() === 'unit_lama') {
+            $query->where('u.tahun_pembuatan', '<', date('Y') - 10);
+        } else {
+            $query->where('u.is_active', 1);
+        }
+
 
         // Search functionality
         if ($request->filled('search')) {
@@ -62,6 +70,7 @@ class UnitController extends Controller
             ->select('id_jenis_unit', 'nama_jenis')
             ->orderBy('nama_jenis', 'asc')
             ->get();
+
         return view('unit.index', compact('units', 'jenisUnits'));
     }
 

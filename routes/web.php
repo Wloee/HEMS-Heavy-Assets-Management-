@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('unit')->group(function () {
     Route::get('/', [UnitController::class, 'index'])->name('data_Unit');
+    Route::get('/lama', [UnitController::class, 'index'])->name('unit_lama');
     Route::get('/create', [UnitController::class, 'create'])->name('create_Unit');
     Route::post('/store', [UnitController::class, 'store'])->name('store_Unit');
     Route::post('/pemilikik_store', [UnitController::class, 'pemilik_store'])->name('pemilik.store');

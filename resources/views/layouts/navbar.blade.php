@@ -606,12 +606,12 @@
         <!-- Navigation Menu -->
         <ul class="custom-navbar-nav" id="navbarNav">
             <li class="custom-nav-item">
-                <a href="#" class="custom-nav-link active">
+                <a href="{{ route('dashboard') }}" class="custom-nav-link active">
                     Home
                 </a>
             </li>
 
-            <li class="custom-nav-item">
+            <li class="custom-nav-item"a>
                 <a href="#" class="custom-nav-link">
                     Unit
                     <span class="custom-dropdown-arrow">▼</span>
@@ -619,7 +619,7 @@
                 <div class="custom-dropdown-menu">
                     <a href="{{ route('create_Unit') }}" class="custom-dropdown-item">Tambah Unit</a>
                     <a href="{{ route('data_Unit') }}" class="custom-dropdown-item">Data Unit baru</a>
-                    <a href="#" class="custom-dropdown-item">Data Unit Lama</a>
+                    <a href="{{ route('unit_lama') }}" class="custom-dropdown-item">Data Unit Lama</a>
                     <a href="{{ route('jenis-unit.index') }}" class="custom-dropdown-item">Jenis Unit</a>
                 </div>
             </li>
@@ -672,8 +672,8 @@
                     <span class="custom-dropdown-arrow">▼</span>
                 </a>
                 <div class="custom-dropdown-menu">
-                    <a href="{{ route('proyek.index') }}" class="custom-dropdown-item">Input Data Proyek</a>
-                    <a href="{{ route('proyek.create') }}" class="custom-dropdown-item">Data Proyek</a>
+                    <a href="{{route('proyek.create')}}" class="custom-dropdown-item">Input Data Proyek</a>
+                    <a href="{{route('proyek.index')}}" class="custom-dropdown-item">Data Proyek</a>
                     <a href="#" class="custom-dropdown-item">Data Kontrak Proyek</a>
                     <a href="#" class="custom-dropdown-item">Addendum Proyek</a>
                     <a href="#" class="custom-dropdown-item">Input Invoice Operasional alat</a>
@@ -744,44 +744,6 @@
                     <a href="#" class="custom-dropdown-item">laporan Pembayaran Barang</a>
                 </div>
             </li>
-
-            <li class="custom-nav-item">
-                <a href="#" class="custom-nav-link">
-                    Setting
-                    <span class="custom-dropdown-arrow">▼</span>
-                </a>
-                <div class="custom-dropdown-menu">
-                    <a href="#" class="custom-dropdown-item">General Settings</a>
-                    <a href="{{ route('user.index') }}" class="custom-dropdown-item">User Management</a>
-                </div>
-            </li>
-
-            <li class="custom-nav-item">
-                <a href="#" class="custom-nav-link">
-                    Tools
-                    <span class="custom-dropdown-arrow">▼</span>
-                </a>
-                <div class="custom-dropdown-menu">
-                    <a href="#" class="custom-dropdown-item">Cost Calculator</a>
-                    <a href="#" class="custom-dropdown-item">Task Scheduler</a>
-                    <a href="#" class="custom-dropdown-item">Data Analyzer</a>
-                    <a href="#" class="custom-dropdown-item">Data Export</a>
-                </div>
-            </li>
-
-            <li class="custom-nav-item">
-                <a href="#" class="custom-nav-link">
-                    Bantuan
-                    <span class="custom-dropdown-arrow">▼</span>
-                </a>
-                <div class="custom-dropdown-menu">
-                    <a href="#" class="custom-dropdown-item">FAQ</a>
-                    <a href="#" class="custom-dropdown-item">User Guides</a>
-                    <a href="#" class="custom-dropdown-item">Contact Support</a>
-                    <a href="#" class="custom-dropdown-item">Submit Feedback</a>
-                </div>
-            </li>
-        </ul>
 
         <!-- Right Side User Menu -->
         <div class="custom-navbar-right">

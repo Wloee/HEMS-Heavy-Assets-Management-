@@ -37,8 +37,8 @@
                     <div class="input-group">
                         <select name="jenis_unit_id" class="form-select" id="jenisUnitSelect" required>
                             <option value="" disabled {{ !old('jenis_unit_id') && !isset($jenisUnits) ? 'selected' : '' }}>Pilih jenis unit</option>
-                            @if(isset($jenisUnits))
-                                @foreach($jenisUnits as $j)
+                            @if(isset($jenis_units))
+                                @foreach($jenis_units as $j)
                                     <option value="{{ $j->id_jenis_unit }}">
                                         {{ $j->nama_jenis }}
                                     </option>
