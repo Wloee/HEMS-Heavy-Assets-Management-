@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id('id_pembelian');
             $table->foreignId('supplier_id')->constrained('supplier', 'id_supplier')
                 ->onUpdate('cascade')->onDelete('restrict');
+            $table->ENUM('status', ['pending', 'completed', 'canceled'])->default('pending');
             $table->date('tanggal_pembelian');
             $table->decimal('total_harga', 15, 2)->default(0.00);
             $table->timestamps();

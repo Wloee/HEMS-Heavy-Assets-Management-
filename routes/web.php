@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JenisUnitController;
 use App\Http\Controllers\SuplierController;
 use App\Http\Controllers\Karyawan\KaryawanController;
+use App\Http\Controllers\MaintananceController;
 use App\Http\Controllers\pembelianController;
 use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\UnitController;
@@ -41,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
 
     //Resource untuk Jenis unit
     Route::resource('jenis-unit', JenisUnitController::class)->except('show');
+    Route::resource('Maintanance', MaintananceController::class);
     //Resource untuk Suplier
     Route::resource('supplier', SuplierController::class);
     Route::resource('pengadaan-sparepart', pembelianController::class);

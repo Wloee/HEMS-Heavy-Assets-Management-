@@ -8,54 +8,161 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
 class HemsSeeder extends Seeder
-{
-    public function run()
+{   public function run()
     {
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Truncate all tables
+        // Truncate tables
+        $this->truncateTables();
+
+        // Seed in order of dependencies
+        $this->seedSatuan();
+        $this->seedDepartemen();
+        $this->seedPosisi();
+        $this->seedKaryawan();
+        $this->seedUsers();
+        $this->seedClient();
+        $this->seedJenisPekerjaan();
+        $this->seedJenisUnit();
+        $this->seedPemilikUnit();
+        $this->seedUnit();
+        $this->seedGambarUnit();
+        $this->seedSupplier();
+        $this->seedSparepart();
+        $this->seedSparepartSatuan();
+        $this->seedProyek();
+        $this->seedDetailBiayaPekerjaan();
+        $this->seedUnitProyek();
+        $this->seedInvoice();
+        $this->seedMaintenanceSchedule();
+        $this->seedMaintenanceLog();
+        $this->seedLogOperasional();
+        $this->seedSparepartPengadaan();
+        $this->seedPermintaanSparepart();
+        $this->seedDokumenKaryawan();
+
+        // Re-enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    }
+
+    private function truncateTables()
+    {
         $tables = [
-            'users', 'karyawan', 'departemen', 'posisi', 'dokumen_karyawan',
-            'client', 'supplier', 'pemilik_unit', 'jenis_unit', 'unit', 'gambar_unit',
-            'satuan', 'sparepart', 'sparepart_satuan', 'jenis_pekerjaan',
-            'proyek', 'detail_biaya_pekerjaan', 'unit_proyek', 'log_operasional',
-            'maintenance_schedule', 'maintenance_log', 'maintenance_sparepart',
-            'invoice'
+            'dokumen_karyawan', 'permintaan_sparepart_detail', 'permintaan_sparepart',
+            'sparepart_pengadaan_detail', 'sparepart_pengadaan', 'maintenance_sparepart',
+            'maintenance_log', 'maintenance_schedule', 'log_operasional', 'unit_proyek',
+            'invoice', 'detail_biaya_pekerjaan', 'gambar_unit', 'sparepart_satuan',
+            'sparepart', 'unit', 'addendum', 'proyek', 'users', 'karyawan',
+            'supplier', 'pemilik_unit', 'jenis_unit', 'jenis_pekerjaan', 'client',
+            'posisi', 'departemen', 'satuan'
         ];
 
         foreach ($tables as $table) {
             DB::table($table)->truncate();
         }
+    }
 
-        // 1. Seed Departemen
-        DB::table('departemen')->insert([
-            ['id_departemen' => 1, 'nama_departemen' => 'Operasional', 'created_at' => now(), 'updated_at' => now()],
-            ['id_departemen' => 2, 'nama_departemen' => 'Maintenance', 'created_at' => now(), 'updated_at' => now()],
-            ['id_departemen' => 3, 'nama_departemen' => 'Administrasi', 'created_at' => now(), 'updated_at' => now()],
-            ['id_departemen' => 4, 'nama_departemen' => 'Keuangan', 'created_at' => now(), 'updated_at' => now()],
-        ]);
+    private function seedSatuan()
+    {
+        $data = [
+            ['nama_satuan' => 'Pcs', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Set', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Liter', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Kg', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Meter', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Box', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Roll', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Botol', 'created_at' => now(), 'updated_at' => now()],
+        ];
 
-        // 2. Seed Posisi
-        DB::table('posisi')->insert([
-            ['id_posisi' => 1, 'nama_posisi' => 'Manager', 'created_at' => now(), 'updated_at' => now()],
-            ['id_posisi' => 2, 'nama_posisi' => 'Operator', 'created_at' => now(), 'updated_at' => now()],
-            ['id_posisi' => 3, 'nama_posisi' => 'Teknisi', 'created_at' => now(), 'updated_at' => now()],
-            ['id_posisi' => 4, 'nama_posisi' => 'Admin', 'created_at' => now(), 'updated_at' => now()],
-            ['id_posisi' => 5, 'nama_posisi' => 'Supervisor', 'created_at' => now(), 'updated_at' => now()],
-        ]);
+        DB::table('satuan')->insert($data);
+    }
 
-        // 3. Seed Karyawan
-        DB::table('karyawan')->insert([
+    private function seedDepartemen()
+    {
+        $data = [
+            ['nama_departemen' => 'Operasional', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_departemen' => 'Maintenance', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_departemen' => 'Administrasi', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_departemen' => 'Keuangan', 'created_at' => now(), 'updated_at' => now()],
+        ];
+
+        DB::table('departemen')->insert($data);
+    }
+
+    private function seedPosisi()
+    {
+        $data = [
+            ['nama_posisi' => 'Operator Excavator', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_posisi' => 'Operator Bulldozer', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_posisi' => 'Operator Dump Truck', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_posisi' => 'Teknisi Mekanik', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_posisi' => 'Supervisor', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_posisi' => 'Admin', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_posisi' => 'Manager', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_posisi' => 'Teknisi Listrik', 'created_at' => now(), 'updated_at' => now()],
+        ];
+
+        DB::table('posisi')->insert($data);
+    }
+
+    private function seedKaryawan()
+    {
+        $data = [
             [
-                'id_karyawan' => 1,
-                'nama_lengkap' => 'Budi Santoso',
-                'no_nik' => '3274051234567890',
-                'tanggal_lahir' => '1980-05-15',
+                'nama_karyawan' => 'Ahmad Fauzi',
+                'no_nik' => '1234567890123456',
+                'tanggal_lahir' => '1985-05-15',
                 'no_handphone' => '081234567890',
                 'tanggal_bergabung' => '2020-01-15',
                 'departemen_id' => 1,
                 'posisi_id' => 1,
+                'Gaji' => 5000000.00,
+                'Tunjangan' => 500000.00,
+                'Intensif' => 300000.00,
+                'Status' => 'Aktif',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nama_karyawan' => 'Budi Santoso',
+                'no_nik' => '1234567890123457',
+                'tanggal_lahir' => '1982-08-22',
+                'no_handphone' => '081234567891',
+                'tanggal_bergabung' => '2019-03-10',
+                'departemen_id' => 2,
+                'posisi_id' => 4,
+                'Gaji' => 4500000.00,
+                'Tunjangan' => 450000.00,
+                'Intensif' => 250000.00,
+                'Status' => 'Aktif',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nama_karyawan' => 'Citra Dewi',
+                'no_nik' => '1234567890123458',
+                'tanggal_lahir' => '1990-12-08',
+                'no_handphone' => '081234567892',
+                'tanggal_bergabung' => '2021-06-01',
+                'departemen_id' => 3,
+                'posisi_id' => 6,
+                'Gaji' => 3500000.00,
+                'Tunjangan' => 350000.00,
+                'Intensif' => 200000.00,
+                'Status' => 'Aktif',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nama_karyawan' => 'Dedi Kurniawan',
+                'no_nik' => '1234567890123459',
+                'tanggal_lahir' => '1987-03-25',
+                'no_handphone' => '081234567893',
+                'tanggal_bergabung' => '2018-09-15',
+                'departemen_id' => 1,
+                'posisi_id' => 7,
                 'Gaji' => 8000000.00,
                 'Tunjangan' => 1000000.00,
                 'Intensif' => 500000.00,
@@ -63,495 +170,827 @@ class HemsSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-            [
-                'id_karyawan' => 2,
-                'nama_lengkap' => 'Ahmad Wijaya',
-                'no_nik' => '3274051234567891',
-                'tanggal_lahir' => '1985-03-20',
-                'no_handphone' => '081234567891',
-                'tanggal_bergabung' => '2020-03-01',
-                'departemen_id' => 1,
-                'posisi_id' => 2,
-                'Gaji' => 5000000.00,
-                'Tunjangan' => 750000.00,
-                'Intensif' => 300000.00,
-                'Status' => 'Aktif',
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'id_karyawan' => 3,
-                'nama_lengkap' => 'Sari Indah',
-                'no_nik' => '3274051234567892',
-                'tanggal_lahir' => '1990-07-10',
-                'no_handphone' => '081234567892',
-                'tanggal_bergabung' => '2021-06-15',
-                'departemen_id' => 2,
-                'posisi_id' => 3,
-                'Gaji' => 6000000.00,
-                'Tunjangan' => 800000.00,
-                'Intensif' => 400000.00,
-                'Status' => 'Aktif',
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-        ]);
+        ];
 
-        // 4. Seed Users
-        DB::table('users')->insert([
+        DB::table('karyawan')->insert($data);
+    }
+
+    private function seedUsers()
+    {
+        $data = [
             [
-                'id' => 1,
                 'name' => 'admin',
                 'email' => 'admin@hems.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('password123'),
                 'role' => 'admin',
-                'karyawan_id' => 1,
-                'is_active' => true,
+                'karyawan_id' => null,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id' => 2,
+                'name' => 'manager',
+                'email' => 'manager@hems.com',
+                'password' => Hash::make('password123'),
+                'role' => 'manager',
+                'karyawan_id' => 4,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
                 'name' => 'operator1',
-                'email' => 'operator@hems.com',
-                'password' => Hash::make('password'),
+                'email' => 'operator1@hems.com',
+                'password' => Hash::make('password123'),
                 'role' => 'operator',
+                'karyawan_id' => 1,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => 'teknisi1',
+                'email' => 'teknisi1@hems.com',
+                'password' => Hash::make('password123'),
+                'role' => 'teknisi',
                 'karyawan_id' => 2,
-                'is_active' => true,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
+        ];
 
-        // 5. Seed Client
-        DB::table('client')->insert([
+        DB::table('users')->insert($data);
+    }
+
+    private function seedClient()
+    {
+        $data = [
             [
-                'id_client' => 1,
-                'nama_client' => 'PT Pembangunan Jaya',
-                'alamat' => 'Jl. Sudirman No. 123, Jakarta',
-                'no_handphone' => '02112345678',
-                'email' => 'contact@pjaya.com',
-                'contact_person' => 'Ir. Bambang Sutrisno',
-                'is_active' => true,
+                'nama_client' => 'PT. Pembangunan Infrastruktur',
+                'alamat' => 'Jl. Sudirman No. 123, Jakarta Selatan',
+                'no_handphone' => '021-5551234',
+                'email' => 'info@ptpi.co.id',
+                'contact_person' => 'Ir. Bambang Wijaya',
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id_client' => 2,
-                'nama_client' => 'CV Konstruksi Mandiri',
+                'nama_client' => 'CV. Konstruksi Mandiri',
                 'alamat' => 'Jl. Gatot Subroto No. 456, Bandung',
-                'no_handphone' => '02287654321',
-                'email' => 'info@konstruksimandiri.com',
-                'contact_person' => 'Drs. Agus Prasetyo',
-                'is_active' => true,
+                'no_handphone' => '022-7771234',
+                'email' => 'admin@cvkm.co.id',
+                'contact_person' => 'Sandi Pratama',
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
+        ];
 
-        // 6. Seed Supplier
-        DB::table('supplier')->insert([
-            [
-                'id_supplier' => 1,
-                'nama_supplier' => 'PT Sparepart Alat Berat',
-                'alamat' => 'Jl. Industri No. 789, Bekasi',
-                'no_handphone' => '02198765432',
-                'email' => 'sales@sparepartab.com',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'id_supplier' => 2,
-                'nama_supplier' => 'CV Teknik Jaya',
-                'alamat' => 'Jl. Raya Bogor No. 321, Depok',
-                'no_handphone' => '02156789012',
-                'email' => 'contact@teknikjaya.com',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-        ]);
+        DB::table('client')->insert($data);
+    }
 
-        // 7. Seed Pemilik Unit
-        DB::table('pemilik_unit')->insert([
-            [
-                'id_pemilik' => 1,
-                'nama_pemilik' => 'PT Heavy Equipment Rental',
-                'no_handphone' => '02123456789',
-                'email' => 'owner@her.com',
-                'alamat' => 'Jl. Raya Cikampek KM 47, Karawang',
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'id_pemilik' => 2,
-                'nama_pemilik' => 'CV Alat Berat Nusantara',
-                'no_handphone' => '02134567890',
-                'email' => 'info@abnusantara.com',
-                'alamat' => 'Jl. Bypass Ngurah Rai, Denpasar',
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-        ]);
+    private function seedJenisPekerjaan()
+    {
+        $data = [
+            ['nama_jenis_pekerjaan' => 'Penggalian Tanah', 'deskripsi' => 'Pekerjaan penggalian dan pemindahan tanah', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis_pekerjaan' => 'Perataan Lahan', 'deskripsi' => 'Pekerjaan perataan dan grading lahan', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis_pekerjaan' => 'Pembangunan Jalan', 'deskripsi' => 'Konstruksi dan pemeliharaan jalan', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis_pekerjaan' => 'Demolisi', 'deskripsi' => 'Pembongkaran bangunan dan struktur', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis_pekerjaan' => 'Pemindahan Material', 'deskripsi' => 'Transport material konstruksi', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis_pekerjaan' => 'Drainase', 'deskripsi' => 'Pembangunan sistem drainase', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis_pekerjaan' => 'Landscaping', 'deskripsi' => 'Penataan lanskap dan taman', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis_pekerjaan' => 'Pemadatan Tanah', 'deskripsi' => 'Kompaksi dan pemadatan tanah', 'created_at' => now(), 'updated_at' => now()],
+        ];
 
-        // 8. Seed Jenis Unit
-        DB::table('jenis_unit')->insert([
-            ['id_jenis_unit' => 1, 'nama_jenis' => 'Excavator', 'deskripsi' => 'Alat berat untuk penggalian', 'created_at' => now(), 'updated_at' => now()],
-            ['id_jenis_unit' => 2, 'nama_jenis' => 'Bulldozer', 'deskripsi' => 'Alat berat untuk perataan tanah', 'created_at' => now(), 'updated_at' => now()],
-            ['id_jenis_unit' => 3, 'nama_jenis' => 'Dump Truck', 'deskripsi' => 'Kendaraan pengangkut material', 'created_at' => now(), 'updated_at' => now()],
-            ['id_jenis_unit' => 4, 'nama_jenis' => 'Crane', 'deskripsi' => 'Alat pengangkat beban berat', 'created_at' => now(), 'updated_at' => now()],
-            ['id_jenis_unit' => 5, 'nama_jenis' => 'Wheel Loader', 'deskripsi' => 'Alat muat dengan roda', 'created_at' => now(), 'updated_at' => now()],
-        ]);
+        DB::table('jenis_pekerjaan')->insert($data);
+    }
 
-        // 9. Seed Unit
-        DB::table('unit')->insert([
+    private function seedJenisUnit()
+    {
+        $data = [
+            ['nama_jenis' => 'Excavator', 'deskripsi' => 'Alat berat untuk penggalian', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis' => 'Bulldozer', 'deskripsi' => 'Alat berat untuk perataan tanah', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis' => 'Dump Truck', 'deskripsi' => 'Truk pengangkut material', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis' => 'Crane', 'deskripsi' => 'Alat angkat berat', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis' => 'Compactor', 'deskripsi' => 'Alat pemadat tanah', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_jenis' => 'Grader', 'deskripsi' => 'Alat perata jalan', 'created_at' => now(), 'updated_at' => now()],
+        ];
+
+        DB::table('jenis_unit')->insert($data);
+    }
+
+    private function seedPemilikUnit()
+    {
+        $data = [
+            ['nama_pemilik' => 'PT. Heavy Equipment Rental', 'is_active' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['nama_pemilik' => 'CV. Alat Berat Sejahtera', 'is_active' => 1, 'created_at' => now(), 'updated_at' => now()],
+        ];
+
+        DB::table('pemilik_unit')->insert($data);
+    }
+
+    private function seedUnit()
+    {
+        $data = [
             [
-                'id_unit' => 1,
                 'kode_unit' => 'EXC001',
-                'nama_unit' => 'Excavator Komatsu PC200',
+                'nama_unit' => 'Excavator Komatsu PC200-8',
                 'jenis_unit_id' => 1,
                 'merk' => 'Komatsu',
                 'model' => 'PC200-8',
                 'tahun_pembuatan' => 2018,
-                'no_rangka' => 'KMTPC200180001',
-                'no_mesin' => 'SAA6D107E001',
-                'no_polisi' => 'B 9001 AB',
+                'no_rangka' => 'KMTPC200X18001234',
+                'no_mesin' => 'SAA6D107E-1-001',
+                'no_polisi' => 'B 1234 ABC',
                 'pemilik_id' => 1,
-                'alamat_unit' => 'Workshop Cikampek',
-                'kota' => 'Karawang',
+                'alamat_unit' => 'Workshop Cibitung',
+                'kota' => 'Bekasi',
                 'provinsi' => 'Jawa Barat',
-                'jam_operasi' => 2500,
+                'jam_operasi' => 2450,
                 'status_kepemilikan' => 'milik_sendiri',
                 'status_kondisi' => 'baik',
                 'status_operasional' => 'operasional',
-                'is_active' => true,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id_unit' => 2,
                 'kode_unit' => 'BLD001',
                 'nama_unit' => 'Bulldozer Caterpillar D6T',
                 'jenis_unit_id' => 2,
                 'merk' => 'Caterpillar',
-                'model' => 'D6T LGP',
+                'model' => 'D6T',
                 'tahun_pembuatan' => 2019,
-                'no_rangka' => 'CATD6T190001',
-                'no_mesin' => 'C7ACERT001',
-                'no_polisi' => 'B 9002 AB',
+                'no_rangka' => 'CATD6TX19005678',
+                'no_mesin' => 'C7.1-002',
+                'no_polisi' => 'B 5678 DEF',
                 'pemilik_id' => 1,
-                'alamat_unit' => 'Workshop Cikampek',
-                'kota' => 'Karawang',
+                'alamat_unit' => 'Workshop Cibitung',
+                'kota' => 'Bekasi',
                 'provinsi' => 'Jawa Barat',
                 'jam_operasi' => 1800,
                 'status_kepemilikan' => 'milik_sendiri',
                 'status_kondisi' => 'baik',
                 'status_operasional' => 'standby',
-                'is_active' => true,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
-
-        // 10. Seed Satuan
-        DB::table('satuan')->insert([
-            ['id_satuan' => 1, 'nama_satuan' => 'pcs', 'created_at' => now(), 'updated_at' => now()],
-            ['id_satuan' => 2, 'nama_satuan' => 'liter', 'created_at' => now(), 'updated_at' => now()],
-            ['id_satuan' => 3, 'nama_satuan' => 'set', 'created_at' => now(), 'updated_at' => now()],
-            ['id_satuan' => 4, 'nama_satuan' => 'kg', 'created_at' => now(), 'updated_at' => now()],
-        ]);
-
-        // 11. Seed Sparepart
-        DB::table('sparepart')->insert([
             [
-                'id_sparepart' => 1,
+                'kode_unit' => 'DMP001',
+                'nama_unit' => 'Dump Truck Hino FM260JD',
+                'jenis_unit_id' => 3,
+                'merk' => 'Hino',
+                'model' => 'FM260JD',
+                'tahun_pembuatan' => 2020,
+                'no_rangka' => 'HNOFM260X20009876',
+                'no_mesin' => 'J08E-UH-003',
+                'no_polisi' => 'B 9876 GHI',
+                'pemilik_id' => 2,
+                'alamat_unit' => 'Pool Karawang',
+                'kota' => 'Karawang',
+                'provinsi' => 'Jawa Barat',
+                'jam_operasi' => 1200,
+                'status_kepemilikan' => 'sewa',
+                'status_kondisi' => 'baik',
+                'status_operasional' => 'operasional',
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('unit')->insert($data);
+    }
+
+    private function seedGambarUnit()
+    {
+        $data = [
+            [
+                'unit_id' => 1,
+                'gambar_depan' => 'units/EXC001_depan.jpg',
+                'gambar_belakang' => 'units/EXC001_belakang.jpg',
+                'gambar_kiri' => 'units/EXC001_kiri.jpg',
+                'gambar_kanan' => 'units/EXC001_kanan.jpg',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('gambar_unit')->insert($data);
+    }
+
+    private function seedSupplier()
+    {
+        $data = [
+            [
+                'nama_supplier' => 'PT. Sparepart Heavy Equipment',
+                'alamat' => 'Jl. Industri No. 45, Cibitung',
+                'no_handphone' => '021-8881234',
+                'email' => 'sales@sphe.co.id',
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nama_supplier' => 'CV. Onderdil Alat Berat',
+                'alamat' => 'Jl. Raya Bekasi No. 78, Bekasi',
+                'no_handphone' => '021-8889876',
+                'email' => 'info@cvoab.co.id',
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'nama_supplier' => 'Toko Spare Part Mandiri',
+                'alamat' => 'Jl. Ahmad Yani No. 123, Karawang',
+                'no_handphone' => '0267-123456',
+                'email' => 'mandiri@gmail.com',
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('supplier')->insert($data);
+    }
+
+    private function seedSparepart()
+    {
+        $data = [
+            [
                 'kode_sparepart' => 'SP001',
                 'nama_sparepart' => 'Filter Oli Hydraulic',
                 'merk' => 'Komatsu',
-                'deskripsi' => 'Filter oli sistem hydraulic untuk excavator',
                 'supplier_id' => 1,
                 'stok_minimum' => 5,
                 'stok_saat_ini' => 15,
-                'harga_beli_terakhir' => 450000.00,
-                'is_active' => true,
+                'is_active' => 1,
+                'deksripsi_produk' => 'Filter oli hydraulic untuk excavator Komatsu PC200',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id_sparepart' => 2,
                 'kode_sparepart' => 'SP002',
-                'nama_sparepart' => 'Track Pad',
-                'merk' => 'Generic',
-                'deskripsi' => 'Karet track untuk excavator',
+                'nama_sparepart' => 'Belt Fan Alternator',
+                'merk' => 'Caterpillar',
                 'supplier_id' => 1,
-                'stok_minimum' => 2,
+                'stok_minimum' => 3,
                 'stok_saat_ini' => 8,
-                'harga_beli_terakhir' => 2500000.00,
-                'is_active' => true,
+                'is_active' => 1,
+                'deksripsi_produk' => 'Belt kipas alternator untuk bulldozer CAT D6T',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
+            [
+                'kode_sparepart' => 'SP003',
+                'nama_sparepart' => 'Brake Pad Depan',
+                'merk' => 'Hino',
+                'supplier_id' => 2,
+                'stok_minimum' => 4,
+                'stok_saat_ini' => 12,
+                'is_active' => 1,
+                'deksripsi_produk' => 'Kampas rem depan untuk dump truck Hino',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'kode_sparepart' => 'SP004',
+                'nama_sparepart' => 'Seal O-Ring Kit',
+                'merk' => 'Universal',
+                'supplier_id' => 3,
+                'stok_minimum' => 10,
+                'stok_saat_ini' => 25,
+                'is_active' => 1,
+                'deksripsi_produk' => 'Set seal O-ring untuk sistem hydraulic',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'kode_sparepart' => 'SP005',
+                'nama_sparepart' => 'Air Filter Element',
+                'merk' => 'Donaldson',
+                'supplier_id' => 1,
+                'stok_minimum' => 6,
+                'stok_saat_ini' => 18,
+                'is_active' => 1,
+                'deksripsi_produk' => 'Element filter udara untuk mesin diesel',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
 
-        // 12. Seed Sparepart Satuan
-        DB::table('sparepart_satuan')->insert([
-            [
-                'id_sparepart_satuan' => 1,
-                'sparepart_id' => 1,
-                'satuan_id' => 1,
-                'konversi' => 1,
-                'harga_satuan' => 450000.00,
-                'is_default' => true,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'id_sparepart_satuan' => 2,
-                'sparepart_id' => 2,
-                'satuan_id' => 3,
-                'konversi' => 1,
-                'harga_satuan' => 2500000.00,
-                'is_default' => true,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-        ]);
+        DB::table('sparepart')->insert($data);
+    }
 
-        // 13. Seed Jenis Pekerjaan
-        DB::table('jenis_pekerjaan')->insert([
-            [
-                'id_jenis_pekerjaan' => 1,
-                'nama_jenis_pekerjaan' => 'Penggalian Tanah',
-                'deskripsi' => 'Pekerjaan penggalian untuk pondasi atau saluran',
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'id_jenis_pekerjaan' => 2,
-                'nama_jenis_pekerjaan' => 'Perataan Tanah',
-                'deskripsi' => 'Pekerjaan perataan dan pembentukan kontur tanah',
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'id_jenis_pekerjaan' => 3,
-                'nama_jenis_pekerjaan' => 'Pengangkutan Material',
-                'deskripsi' => 'Pekerjaan pengangkutan tanah, pasir, atau material lain',
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-        ]);
+    private function seedSparepartSatuan()
+    {
+        $data = [
+            ['sparepart_id' => 1, 'satuan_id' => 1, 'konversi' => 1, 'harga_satuan' => 125000.00, 'is_default' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['sparepart_id' => 2, 'satuan_id' => 1, 'konversi' => 1, 'harga_satuan' => 85000.00, 'is_default' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['sparepart_id' => 3, 'satuan_id' => 2, 'konversi' => 1, 'harga_satuan' => 450000.00, 'is_default' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['sparepart_id' => 4, 'satuan_id' => 2, 'konversi' => 1, 'harga_satuan' => 75000.00, 'is_default' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['sparepart_id' => 5, 'satuan_id' => 1, 'konversi' => 1, 'harga_satuan' => 165000.00, 'is_default' => 1, 'created_at' => now(), 'updated_at' => now()],
+        ];
 
-        // 14. Seed Proyek
-        DB::table('proyek')->insert([
+        DB::table('sparepart_satuan')->insert($data);
+    }
+
+    private function seedProyek()
+    {
+        $data = [
             [
-                'id_proyek' => 1,
-                'kode_proyek' => 'PRJ2024001',
-                'nama_proyek' => 'Pembangunan Perumahan Green Valley',
-                'deskripsi' => 'Proyek pembangunan infrastruktur perumahan seluas 10 hektar',
+                'nama_proyek' => 'Pembangunan Jalan Tol Cibitung-Cikarang',
+                'deskripsi' => 'Proyek pembangunan jalan tol sepanjang 15 km dengan lebar 4 lajur',
                 'tanggal_mulai' => '2024-01-15',
-                'tanggal_selesai_rencana' => '2024-06-15',
                 'tanggal_selesai_aktual' => null,
-                'no_spk' => 'SPK/001/2024',
-                'client_id' => 1,
-                'project_manager_id' => 1,
-                'lokasi_proyek' => 'Jl. Raya Bogor KM 35, Cibinong',
+                'id_addendum' => null,
+                'nama_client' => 'PT. Pembangunan Infrastruktur',
+                'lokasi_proyek' => 'Cibitung - Cikarang, Jawa Barat',
                 'status' => 'aktif',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id_proyek' => 2,
-                'kode_proyek' => 'PRJ2024002',
-                'nama_proyek' => 'Pembangunan Jalan Tol Seksi A',
-                'deskripsi' => 'Pembangunan jalan tol sepanjang 15 km',
+                'nama_proyek' => 'Pembangunan Perumahan Green Valley',
+                'deskripsi' => 'Land clearing dan site preparation untuk perumahan 500 unit',
                 'tanggal_mulai' => '2024-03-01',
-                'tanggal_selesai_rencana' => '2024-12-31',
-                'tanggal_selesai_aktual' => null,
-                'no_spk' => 'SPK/002/2024',
-                'client_id' => 2,
-                'project_manager_id' => 1,
-                'lokasi_proyek' => 'Ruas Cikampek - Purwakarta',
-                'status' => 'aktif',
+                'tanggal_selesai_aktual' => '2024-07-15',
+                'id_addendum' => null,
+                'nama_client' => 'CV. Konstruksi Mandiri',
+                'lokasi_proyek' => 'Bandung, Jawa Barat',
+                'status' => 'selesai',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
+        ];
 
-        // 15. Seed Detail Biaya Pekerjaan
-        DB::table('detail_biaya_pekerjaan')->insert([
+        DB::table('proyek')->insert($data);
+    }
+
+    private function seedDetailBiayaPekerjaan()
+    {
+        $data = [
             [
-                'id_detail_biaya' => 1,
                 'proyek_id' => 1,
                 'jenis_pekerjaan_id' => 1,
-                'deskripsi' => 'Penggalian pondasi rumah tipe 36',
-                'volume' => 500.00,
-                'satuan' => 'm3',
-                'harga_satuan' => 75000.00,
-                'biaya_total' => 37500000.00,
+                'deskripsi' => 'Penggalian tanah untuk fondasi jalan sepanjang 5 km',
+                'biaya_total' => 2500000000.00,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id_detail_biaya' => 2,
                 'proyek_id' => 1,
                 'jenis_pekerjaan_id' => 2,
-                'deskripsi' => 'Perataan lahan untuk infrastruktur',
-                'volume' => 2000.00,
-                'satuan' => 'm2',
-                'harga_satuan' => 25000.00,
-                'biaya_total' => 50000000.00,
+                'deskripsi' => 'Perataan lahan untuk persiapan aspal',
+                'biaya_total' => 1800000000.00,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
-
-        // 16. Seed Unit Proyek
-        DB::table('unit_proyek')->insert([
             [
-                'id_unit_proyek' => 1,
+                'proyek_id' => 2,
+                'jenis_pekerjaan_id' => 1,
+                'deskripsi' => 'Land clearing area 50 hektar',
+                'biaya_total' => 800000000.00,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('detail_biaya_pekerjaan')->insert($data);
+    }
+
+    private function seedUnitProyek()
+    {
+        $data = [
+            [
                 'unit_id' => 1,
                 'proyek_id' => 1,
                 'tanggal_mulai' => '2024-01-15',
                 'tanggal_selesai' => null,
-                'operator_id' => 2,
+                'operator_id' => 1,
                 'tarif_sewa_harian' => 2500000.00,
                 'status' => 'aktif',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id_unit_proyek' => 2,
-                'unit_id' => 2,
-                'proyek_id' => 2,
-                'tanggal_mulai' => '2024-03-01',
+                'unit_id' => 3,
+                'proyek_id' => 1,
+                'tanggal_mulai' => '2024-01-20',
                 'tanggal_selesai' => null,
-                'operator_id' => 2,
-                'tarif_sewa_harian' => 3000000.00,
+                'operator_id' => null,
+                'tarif_sewa_harian' => 1800000.00,
                 'status' => 'aktif',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
+        ];
 
-        // 17. Seed Log Operasional
-        DB::table('log_operasional')->insert([
+        DB::table('unit_proyek')->insert($data);
+    }
+
+    private function seedInvoice()
+    {
+        $data = [
             [
-                'id_log' => 1,
-                'unit_proyek_id' => 1,
-                'tanggal_operasi' => '2024-01-15',
-                'jam_mulai' => '07:00:00',
-                'jam_selesai' => '15:00:00',
-                'jam_operasi' => 8.00,
-                'jam_idle' => 0.00,
-                'operator_id' => 2,
-                'lokasi_kerja' => 'Area A - Penggalian Pondasi',
-                'jenis_pekerjaan' => 'Penggalian tanah untuk pondasi',
-                'keterangan' => 'Operasi normal, tidak ada kendala',
+                'proyek_id' => 1,
+                'tanggal_invoice' => '2024-02-01',
+                'tanggal_jatuh_tempo' => '2024-03-02',
+                'jumlah_tagihan' => 450000000.00,
+                'sisa_piutang' => 450000000.00,
+                'status' => 'terkirim',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id_log' => 2,
-                'unit_proyek_id' => 1,
-                'tanggal_operasi' => '2024-01-16',
-                'jam_mulai' => '07:00:00',
-                'jam_selesai' => '14:00:00',
-                'jam_operasi' => 6.50,
-                'jam_idle' => 0.50,
-                'operator_id' => 2,
-                'lokasi_kerja' => 'Area B - Penggalian Pondasi',
-                'jenis_pekerjaan' => 'Penggalian tanah untuk pondasi',
-                'keterangan' => 'Sempat idle 30 menit karena hujan',
+                'proyek_id' => 1,
+                'tanggal_invoice' => '2024-03-01',
+                'tanggal_jatuh_tempo' => '2024-04-01',
+                'jumlah_tagihan' => 520000000.00,
+                'sisa_piutang' => 260000000.00,
+                'status' => 'dibayar_sebagian',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
-
-        // 18. Seed Maintenance Schedule
-        DB::table('maintenance_schedule')->insert([
             [
-                'id_schedule' => 1,
+                'proyek_id' => 2,
+                'tanggal_invoice' => '2024-07-15',
+                'tanggal_jatuh_tempo' => '2024-08-15',
+                'jumlah_tagihan' => 800000000.00,
+                'sisa_piutang' => 0.00,
+                'status' => 'lunas',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('invoice')->insert($data);
+    }
+
+    private function seedMaintenanceSchedule()
+    {
+        $data = [
+            [
                 'unit_id' => 1,
-                'jenis_maintenance' => 'Service Rutin 250 Jam',
+                'jenis_maintenance' => 'Service Rutin',
                 'interval_jam' => 250,
                 'interval_hari' => null,
-                'deskripsi' => 'Ganti oli mesin, filter oli, filter udara, dan pengecekan umum',
-                'is_active' => true,
+                'deskripsi' => 'Ganti oli mesin dan filter, cek sistem hydraulic',
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id_schedule' => 2,
                 'unit_id' => 1,
-                'jenis_maintenance' => 'Greasing Mingguan',
-                'interval_jam' => null,
-                'interval_hari' => 7,
+                'jenis_maintenance' => 'Greasing',
+                'interval_jam' => 50,
+                'interval_hari' => null,
                 'deskripsi' => 'Pelumasan semua titik grease nipple',
-                'is_active' => true,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
-
-        // 19. Seed Maintenance Log
-        DB::table('maintenance_log')->insert([
             [
-                'id_maintenance' => 1,
+                'unit_id' => 2,
+                'jenis_maintenance' => 'Service Berkala',
+                'interval_jam' => 500,
+                'interval_hari' => null,
+                'deskripsi' => 'Service lengkap engine dan transmission',
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'unit_id' => 3,
+                'jenis_maintenance' => 'Inspeksi Harian',
+                'interval_jam' => null,
+                'interval_hari' => 1,
+                'deskripsi' => 'Cek kondisi ban, rem, dan sistem kelistrikan',
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('maintenance_schedule')->insert($data);
+    }
+
+    private function seedMaintenanceLog()
+    {
+        $data = [
+            [
                 'unit_id' => 1,
                 'schedule_id' => 1,
-                'tanggal_maintenance' => '2024-01-10',
+                'tanggal_maintenance' => '2024-02-15',
                 'jenis_maintenance' => 'rutin',
-                'deskripsi_pekerjaan' => 'Service rutin 250 jam operasi',
-                'teknisi_id' => 3,
-                'workshop' => 'Workshop Utama Cikampek',
-                'jam_operasi_saat_maintenance' => 2500,
+                'deskripsi_pekerjaan' => 'Ganti oli mesin SAE 15W-40, ganti filter oli hydraulic, cek level coolant',
+                'teknisi_id' => 2,
+                'workshop' => 'Workshop Cibitung',
+                'jam_operasi_saat_maintenance' => 2250,
                 'biaya_jasa' => 500000.00,
-                'biaya_sparepart' => 750000.00,
-                'biaya_total' => 1250000.00,
+                'biaya_sparepart' => 350000.00,
+                'biaya_total' => 850000.00,
                 'status' => 'selesai',
-                'catatan' => 'Semua komponen dalam kondisi baik',
+                'catatan' => 'Kondisi unit baik, tidak ada masalah yang ditemukan',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
-
-        // 20. Seed Maintenance Sparepart
-        DB::table('maintenance_sparepart')->insert([
             [
-                'id_maintenance_sparepart' => 1,
+                'unit_id' => 2,
+                'schedule_id' => null,
+                'tanggal_maintenance' => '2024-03-10',
+                'jenis_maintenance' => 'perbaikan',
+                'deskripsi_pekerjaan' => 'Perbaikan kebocoran hydraulic cylinder',
+                'teknisi_id' => 2,
+                'workshop' => 'Workshop Cibitung',
+                'jam_operasi_saat_maintenance' => 1650,
+                'biaya_jasa' => 1200000.00,
+                'biaya_sparepart' => 850000.00,
+                'biaya_total' => 2050000.00,
+                'status' => 'selesai',
+                'catatan' => 'Seal hydraulic sudah diganti, test operasi normal',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'unit_id' => 3,
+                'schedule_id' => 4,
+                'tanggal_maintenance' => '2024-04-01',
+                'jenis_maintenance' => 'rutin',
+                'deskripsi_pekerjaan' => 'Ganti brake pad depan dan belakang',
+                'teknisi_id' => 2,
+                'workshop' => 'Workshop Karawang',
+                'jam_operasi_saat_maintenance' => 1180,
+                'biaya_jasa' => 300000.00,
+                'biaya_sparepart' => 900000.00,
+                'biaya_total' => 1200000.00,
+                'status' => 'selesai',
+                'catatan' => 'Brake pad lama sudah tipis, diganti preventif',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('maintenance_log')->insert($data);
+    }
+
+    private function seedLogOperasional()
+    {
+        $dates = [
+            '2024-08-01', '2024-08-02', '2024-08-03', '2024-08-04', '2024-08-05',
+            '2024-08-06', '2024-08-07', '2024-08-08', '2024-08-09', '2024-08-10'
+        ];
+
+        $data = [];
+
+        foreach ($dates as $date) {
+            // Log untuk unit_proyek_id 1 (Excavator)
+            $data[] = [
+                'unit_proyek_id' => 1,
+                'tanggal_operasi' => $date,
+                'jam_mulai' => '07:00:00',
+                'jam_selesai' => '16:00:00',
+                'jam_operasi' => 8.0,
+                'jam_idle' => 1.0,
+                'operator_id' => 1,
+                'lokasi_kerja' => 'KM 5+000 - KM 7+500',
+                'jenis_pekerjaan' => 'Penggalian tanah dan loading ke dump truck',
+                'keterangan' => 'Kondisi cuaca cerah, produktivitas normal',
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+            // Log untuk unit_proyek_id 2 (Dump Truck)
+            $data[] = [
+                'unit_proyek_id' => 2,
+                'tanggal_operasi' => $date,
+                'jam_mulai' => '07:30:00',
+                'jam_selesai' => '15:30:00',
+                'jam_operasi' => 7.5,
+                'jam_idle' => 0.5,
+                'operator_id' => null,
+                'lokasi_kerja' => 'KM 5+000 - Disposal Area B',
+                'jenis_pekerjaan' => 'Transport tanah galian ke disposal area',
+                'keterangan' => '15 rit berhasil diselesaikan',
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+        }
+
+        DB::table('log_operasional')->insert($data);
+    }
+
+    private function seedSparepartPengadaan()
+    {
+        $data = [
+            [
+                'supplier_id' => 1,
+                'tanggal_pembelian' => '2024-01-15',
+                'total_harga' => 2500000.00,
+                'Status' => 'completed',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'supplier_id' => 2,
+                'tanggal_pembelian' => '2024-02-10',
+                'total_harga' => 1800000.00,
+                'Status' => 'completed',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'supplier_id' => 1,
+                'tanggal_pembelian' => '2024-03-05',
+                'total_harga' => 3200000.00,
+                'Status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('sparepart_pengadaan')->insert($data);
+    }
+
+    private function seedSparepartPengadaanDetail()
+    {
+        $data = [
+            [
+                'pembelian_id' => 1,
+                'sparepart_id' => 1,
+                'satuan_id' => 1,
+                'jumlah' => 10,
+                'harga_satuan' => 125000.00,
+                'subtotal' => 1250000.00,
+                'kode_sparepart' => 'SP001',
+                'nama_sparepart' => 'Filter Oli Hydraulic'
+            ],
+            [
+                'pembelian_id' => 1,
+                'sparepart_id' => 5,
+                'satuan_id' => 1,
+                'jumlah' => 8,
+                'harga_satuan' => 165000.00,
+                'subtotal' => 1320000.00,
+                'kode_sparepart' => 'SP005',
+                'nama_sparepart' => 'Air Filter Element'
+            ],
+            [
+                'pembelian_id' => 2,
+                'sparepart_id' => 3,
+                'satuan_id' => 2,
+                'jumlah' => 4,
+                'harga_satuan' => 450000.00,
+                'subtotal' => 1800000.00,
+                'kode_sparepart' => 'SP003',
+                'nama_sparepart' => 'Brake Pad Depan'
+            ],
+            [
+                'pembelian_id' => 3,
+                'sparepart_id' => 2,
+                'satuan_id' => 1,
+                'jumlah' => 15,
+                'harga_satuan' => 85000.00,
+                'subtotal' => 1275000.00,
+                'kode_sparepart' => 'SP002',
+                'nama_sparepart' => 'Belt Fan Alternator'
+            ],
+            [
+                'pembelian_id' => 3,
+                'sparepart_id' => 4,
+                'satuan_id' => 2,
+                'jumlah' => 25,
+                'harga_satuan' => 75000.00,
+                'subtotal' => 1875000.00,
+                'kode_sparepart' => 'SP004',
+                'nama_sparepart' => 'Seal O-Ring Kit'
+            ],
+        ];
+
+        DB::table('sparepart_pengadaan_detail')->insert($data);
+    }
+
+    private function seedPermintaanSparepart()
+    {
+        $data = [
+            [
+                'id_karyawan' => 2,
+                'tanggal_permintaan' => '2024-08-15',
+                'status' => 'approved',
+                'keterangan' => 'Untuk maintenance rutin excavator EXC001',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'id_karyawan' => 2,
+                'tanggal_permintaan' => '2024-08-20',
+                'status' => 'pending',
+                'keterangan' => 'Stok menipis, perlu restock untuk emergency',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('permintaan_sparepart')->insert($data);
+    }
+
+    private function seedPermintaanSparepartDetail()
+    {
+        $data = [
+            [
+                'id_permintaan' => 1,
+                'id_sparepart' => 1,
+                'jumlah' => 2,
+                'satuan_id' => 1
+            ],
+            [
+                'id_permintaan' => 1,
+                'id_sparepart' => 4,
+                'jumlah' => 1,
+                'satuan_id' => 2
+            ],
+            [
+                'id_permintaan' => 2,
+                'id_sparepart' => 2,
+                'jumlah' => 5,
+                'satuan_id' => 1
+            ],
+            [
+                'id_permintaan' => 2,
+                'id_sparepart' => 3,
+                'jumlah' => 2,
+                'satuan_id' => 2
+            ],
+        ];
+
+        DB::table('permintaan_sparepart_detail')->insert($data);
+    }
+
+    private function seedMaintenanceSparepart()
+    {
+        $data = [
+            [
                 'maintenance_id' => 1,
                 'sparepart_id' => 1,
                 'jumlah_digunakan' => 1.00,
                 'satuan_id' => 1,
+                'harga_satuan' => 125000.00,
+                'total_harga' => 125000.00,
+                'created_at' => now()
+            ],
+            [
+                'maintenance_id' => 2,
+                'sparepart_id' => 4,
+                'jumlah_digunakan' => 1.00,
+                'satuan_id' => 2,
+                'harga_satuan' => 75000.00,
+                'total_harga' => 75000.00,
+                'created_at' => now()
+            ],
+            [
+                'maintenance_id' => 3,
+                'sparepart_id' => 3,
+                'jumlah_digunakan' => 1.00,
+                'satuan_id' => 2,
                 'harga_satuan' => 450000.00,
                 'total_harga' => 450000.00,
                 'created_at' => now()
             ],
-        ]);
+        ];
 
-        // 21. Seed Invoice
-        DB::table('invoice')->insert([
+        DB::table('maintenance_sparepart')->insert($data);
+    }
+
+    private function seedDokumenKaryawan()
+    {
+        $data = [
             [
-                'id_invoice' => 1,
-                'no_invoice' => 'INV/2024/001',
-                'proyek_id' => 1,
-                'tanggal_invoice' => '2024-01-31',
-                'tanggal_jatuh_tempo' => '2024-02-29',
-                'jumlah_tagihan' => 75000000.00,
-                'jumlah_terbayar' => 25000000.00,
-                'sisa_piutang' => 50000000.00,
-                'status' => 'dibayar_sebagian',
-                'keterangan' => 'Invoice untuk bulan Januari 2024',
+                'karyawan_id' => 1,
+                'image_ktp' => 'documents/karyawan_1_ktp.jpg',
+                'surat_lamaran' => 'documents/karyawan_1_lamaran.pdf',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
-        ]);
+        ];
 
-        // Re-enable foreign key checks
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::table('dokumen_karyawan')->insert($data);
+    }
 
-        $this->command->info('HEMS database seeded successfully!');
+    private function seedAddendum()
+    {
+        $data = [
+            [
+                'id_proyek' => 1,
+                'nama_addendum' => 'Addendum Perpanjangan Waktu',
+                'image_addendum' => 'addendum/proyek_1_addendum_1.pdf',
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ];
+
+        DB::table('addendum')->insert($data);
     }
 }

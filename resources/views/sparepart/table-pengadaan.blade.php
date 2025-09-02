@@ -12,7 +12,6 @@
                 <i class="fas fa-plus"></i> Tambah Pengadaan
             </a>
         </div>
- totalPengadaan = 0;
         <!-- Statistik Cards -->
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-bottom:20px;">
             <div style="background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
@@ -113,13 +112,12 @@
                             <td style="padding:18px 15px; color:#059669; font-weight:600;">Rp {{ number_format($pengadaan->total_harga, 0, ',', '.') }}</td>
                             <td style="padding:18px 15px;">
                                 @php
-                                    $daysDiff = \Carbon\Carbon::parse($pengadaan->tanggal_pembelian)->diffInDays(now());
-                                    if ($daysDiff <= 7) {
-                                        $statusClass = ['bg' => '#10b981', 'text' => '#fff', 'label' => 'Baru'];
-                                    } elseif ($daysDiff <= 30) {
-                                        $statusClass = ['bg' => '#f59e0b', 'text' => '#fff', 'label' => 'Normal'];
+                                    if ($pengadaan->Status == 'completed') {
+                                        $statusClass = ['bg' => '#10b981', 'text' => '#fff', 'label' => 'Completed'];
+                                    } elseif ($pengadaan->Status == 'pending') {
+                                        $statusClass = ['bg' => '#f59e0b', 'text' => '#fff', 'label' => 'pending'];
                                     } else {
-                                        $statusClass = ['bg' => '#6b7280', 'text' => '#fff', 'label' => 'Lama'];
+                                        $statusClass = ['bg' => '#6b7280', 'text' => '#fff', 'label' => 'canceled'];
                                     }
                                 @endphp
                                 <span style="background:{{ $statusClass['bg'] }}; color:{{ $statusClass['text'] }};

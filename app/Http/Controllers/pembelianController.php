@@ -63,13 +63,12 @@ class pembelianController extends Controller
 
             // Get statistics
             $statistics = $this->getStatistics();
+
             // Get suppliers for dropdown filter
             $suppliers = DB::table('supplier')
                           ->select('id_supplier', 'nama_supplier')
                           ->orderBy('nama_supplier')
                           ->get();
-
-
             return view('sparepart.table-pengadaan', array_merge([
                 'pengadaanList' => $pengadaanList,
                 'suppliers' => $suppliers,
@@ -103,108 +102,19 @@ class pembelianController extends Controller
         $satuanList = Satuan::orderBy('nama_satuan')->get();
         return view('sparepart.pembelian-sparepart', compact('pembelian', 'suppliers', 'satuanList'))
             ->with('i', ($request->input('page', 1) - 1) * 15);
-
     } catch (\Exception $e) {
         return redirect()->back()->withErrors(['error' => 'Gagal mengambil data pembelian: ' . $e->getMessage()]);
     }
 }
 
-// Method untuk debug struktur tabel (tambahkan di controller)
-public function debugTableStructure()
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
 {
     try {
-        $tables = [
-            'sparepart_pembelian',
-            'sparepart_pembelian_detail',
-            'sparepart_pengadaan_detail',
-            'sparepart',
-            'supplier',
-            'satuan'
-        ];
-
-        $result = [];
-
-        foreach ($tables as $table) {
-            if (DB::getSchemaBuilder()->hasTable($table)) {
-                $columns = DB::getSchemaBuilder()->getColumnListing($table);
-                $result[$table] = [
-                    'exists' => true,
-                    'columns' => $columns,
-                    'sample_data' => DB::table($table)->first()
-                ];
-            } else {
-                $result[$table] = ['exists' => false];
-            }
-        }
-
-        return response()->json($result, 200, [], JSON_PRETTY_PRINT);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-    }
-}
-
-// Method untuk memperbaiki model jika diperlukan
-public function fixModel()
-{
-    // Contoh perbaikan untuk model sparepart_pembelian_detail
-
-    // 1. Cek nama tabel yang benar
-    $correctTable = null;
-    $possibleTables = [
-        'sparepart_pembelian_detail',
-        'sparepart_pengadaan_detail',
-        'detail_pembelian',
-        'pembelian_detail'
-    ];
-
-    foreach ($possibleTables as $table) {
-        if (DB::getSchemaBuilder()->hasTable($table)) {
-            $correctTable = $table;
-            break;
-        }
-    }
-
-    if (!$correctTable) {
-        return response()->json(['error' => 'Tabel detail tidak ditemukan']);
-    }
-
-    $columns = DB::getSchemaBuilder()->getColumnListing($correctTable);
-
-    return response()->json([
-        'correct_table' => $correctTable,
-        'columns' => $columns,
-        'model_suggestion' => [
-            'table' => $correctTable,
-            'fillable' => $columns,
-            'primary_key' => $this->guessPrimaryKey($columns)
-        ]
-    ]);
-}
-
-private function guessPrimaryKey($columns)
-{
-    $possibleKeys = ['id', 'id_detail', 'id_pembelian_detail', 'id_pengadaan_detail'];
-
-    foreach ($possibleKeys as $key) {
-        if (in_array($key, $columns)) {
-            return $key;
-        }
-    }
-
-    return $columns[0] ?? 'id'; // fallback
-}
-
-public function store(Request $request)
-{
-    try {
-        Log::info('=== MULAI PROSES PEMBELIAN ===');
-        Log::info('Request data: ', $request->all());
-
-        // ✅ VALIDASI YANG DIPERBAIKI
+        // ✅ VALIDASI
         $validated = $request->validate([
             'tanggal_pembelian' => 'required|date',
             'supplier_id' => 'required|exists:supplier,id_supplier',
@@ -216,188 +126,67 @@ public function store(Request $request)
             'items.*.harga_satuan' => 'required|numeric|min:0',
             'items.*.subtotal' => 'required|numeric|min:0',
             'total_pembelian' => 'required|numeric|min:0',
-        ], [
-            'supplier_id.required' => 'Supplier harus dipilih.',
-            'supplier_id.exists' => 'Supplier yang dipilih tidak valid.',
-            'items.required' => 'Minimal harus ada satu item pembelian.',
-            'items.*.nama_sparepart.required' => 'Nama sparepart harus diisi.',
-            'items.*.kode_sparepart.required' => 'Kode sparepart harus diisi.',
-            'items.*.satuan_id.required' => 'Satuan harus dipilih.',
-            'items.*.satuan_id.exists' => 'Satuan yang dipilih tidak valid.',
-            'items.*.jumlah.required' => 'Jumlah harus diisi.',
-            'items.*.jumlah.min' => 'Jumlah minimal 1.',
-            'items.*.harga_satuan.required' => 'Harga satuan harus diisi.',
-            'items.*.harga_satuan.min' => 'Harga satuan tidak boleh negatif.',
         ]);
 
-        Log::info('Validated data: ', $validated);
-
         DB::transaction(function () use ($validated) {
-            Log::info('--- MULAI DATABASE TRANSACTION ---');
-
             // 1️⃣ Simpan data pembelian utama
-            $pembelian = sparepart_pembelian::create([
+            $pembelian = DB::table('sparepart_pengadaan')->insertGetId([
                 'tanggal_pembelian' => $validated['tanggal_pembelian'],
                 'supplier_id' => $validated['supplier_id'],
-                'total_pembelian' => $validated['total_pembelian'],
+                'total_harga' => $validated['total_pembelian'],
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            Log::info('Pembelian utama berhasil dibuat dengan ID: ' . $pembelian->id_pembelian);
+            foreach ($validated['items'] as $item) {
+                // cari sparepart berdasarkan kode
+                $sparepart = DB::table('sparepart')
+                    ->where('kode_sparepart', $item['kode_sparepart'])
+                    ->first();
 
-            // 2️⃣ Simpan detail item
-            foreach ($validated['items'] as $index => $item) {
-                Log::info("Processing item #{$index}: ", $item);
-
-                // Cari atau buat sparepart
-                $sparepart = Sparepart::firstOrCreate(
-                    ['kode_sparepart' => $item['kode_sparepart']],
-                    [
+                // kalau tidak ada → insert sparepart baru
+                if (!$sparepart) {
+                    $sparepartId = DB::table('sparepart')->insertGetId([
+                        'kode_sparepart' => $item['kode_sparepart'],
                         'nama_sparepart' => $item['nama_sparepart'],
-                    ]
-                );
-
-                Log::info("Sparepart ID: {$sparepart->id_sparepart}");
-
-                // ✅ PERBAIKAN: Menggunakan Query Builder untuk menghindari masalah model
-                try {
-                    // Cek struktur tabel yang sebenarnya
-                    $tableExists = DB::getSchemaBuilder()->hasTable('sparepart_pembelian_detail');
-                    $tableName = $tableExists ? 'sparepart_pembelian_detail' : 'sparepart_pengadaan_detail';
-
-                    Log::info("Using table: {$tableName}");
-
-                    // Data yang akan diinsert
-                    $detailData = [
-                        'pembelian_id' => $pembelian->id_pembelian,
-                        'sparepart_id' => $sparepart->id_sparepart,
-                        'satuan_id' => $item['satuan_id'],
-                        'jumlah' => $item['jumlah'],
-                        'kode_sparepart' => $item['kode_sparepart'],
-                        'harga_satuan' => $item['harga_satuan'],
-                        'subtotal' => $item['subtotal'],
+                        'stok_saat_ini' => 0,
+                        'is_active' => 1,
                         'created_at' => now(),
                         'updated_at' => now(),
-                    ];
-
-                    // Cek kolom yang ada di tabel
-                    $columns = DB::getSchemaBuilder()->getColumnListing($tableName);
-                    Log::info("Available columns in {$tableName}: ", $columns);
-
-                    // Filter data berdasarkan kolom yang tersedia
-                    $filteredData = array_intersect_key($detailData, array_flip($columns));
-
-                    // Insert menggunakan Query Builder
-                    $insertedId = DB::table($tableName)->insertGetId($filteredData);
-
-                    Log::info("Detail pembelian berhasil dibuat dengan ID: {$insertedId}");
-
-                } catch (\Exception $detailError) {
-                    Log::error("Error inserting detail: " . $detailError->getMessage());
-
-                    // Fallback: coba dengan struktur tabel yang berbeda
-                    $alternativeData = [
-                        'id_pembelian' => $pembelian->id_pembelian,
-                        'id_sparepart' => $sparepart->id_sparepart,
-                        'id_satuan' => $item['satuan_id'],
-                        'jumlah' => $item['jumlah'],
-                        'kode_sparepart' => $item['kode_sparepart'],
-                        'harga_satuan' => $item['harga_satuan'],
-                        'subtotal' => $item['subtotal'],
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-
-                    // Coba beberapa nama tabel yang mungkin
-                    $possibleTables = [
-                        'sparepart_pembelian_detail',
-                        'sparepart_pengadaan_detail',
-                        'pembelian_detail',
-                        'detail_pembelian'
-                    ];
-
-                    $success = false;
-                    foreach ($possibleTables as $table) {
-                        if (DB::getSchemaBuilder()->hasTable($table)) {
-                            try {
-                                $tableColumns = DB::getSchemaBuilder()->getColumnListing($table);
-                                $tableData = array_intersect_key($alternativeData, array_flip($tableColumns));
-
-                                if (!empty($tableData)) {
-                                    $insertedId = DB::table($table)->insertGetId($tableData);
-                                    Log::info("Detail berhasil disimpan di tabel {$table} dengan ID: {$insertedId}");
-                                    $success = true;
-                                    break;
-                                }
-                            } catch (\Exception $e) {
-                                Log::warning("Failed to insert into {$table}: " . $e->getMessage());
-                                continue;
-                            }
-                        }
-                    }
-
-                    if (!$success) {
-                        throw new \Exception("Gagal menyimpan detail pembelian ke database");
-                    }
+                    ]);
+                } else {
+                    $sparepartId = $sparepart->id_sparepart;
                 }
-            }
 
-            Log::info('--- TRANSACTION SELESAI ---');
+                // insert ke detail pembelian
+                DB::table('sparepart_pengadaan_detail')->insert([
+                    'pembelian_id' => $pembelian,
+                    'sparepart_id' => $sparepartId,
+                    'satuan_id' => $item['satuan_id'],
+                    'jumlah' => $item['jumlah'],
+                    'harga_satuan' => $item['harga_satuan'],
+                    'subtotal' => $item['subtotal'],
+                    'kode_sparepart' => $item['kode_sparepart'], // redundan (boleh dihapus kalau ga perlu)
+                    'nama_sparepart' => $item['nama_sparepart'], // redundan (boleh dihapus kalau ga perlu)
+                ]);
+            }
         });
 
-        Log::info('=== PEMBELIAN BERHASIL DISIMPAN ===');
+        // ✅ redirect di luar transaction
         return redirect()->route('dashboard')
-                        ->with('success', 'Pembelian berhasil disimpan.');
+                         ->with('success', 'Pembelian berhasil disimpan.');
 
     } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::error('Validation Error: ', $e->errors());
         return redirect()->back()
                         ->withErrors($e->errors())
                         ->withInput();
-
     } catch (\Exception $e) {
-        Log::error('Error saat menyimpan pembelian: ' . $e->getMessage());
-        Log::error('Stack trace: ' . $e->getTraceAsString());
-
         return redirect()->back()
                         ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
                         ->withInput();
     }
 }
-        public function show(string $id)
-    {
-        try {
-            // Get pengadaan with supplier info
-            $pengadaan = DB::table('sparepart_pengadaan as sp')
-                          ->leftJoin('supplier as s', 'sp.supplier_id', '=', 's.id_supplier')
-                          ->select('sp.*', 's.nama_supplier', 's.alamat_supplier', 's.telepon_supplier')
-                          ->where('sp.id_pembelian', $id)
-                          ->first();
 
-            if (!$pengadaan) {
-                return redirect()->route('pengadaan-sparepart.index')
-                               ->with('error', 'Data pengadaan tidak ditemukan.');
-            }
-
-            // Get pengadaan details
-            $details = DB::table('sparepart_pengadaan_detail as spd')
-                        ->leftJoin('sparepart as sp', 'spd.sparepart_id', '=', 'sp.id_sparepart')
-                        ->leftJoin('satuan as st', 'spd.satuan_id', '=', 'st.id_satuan')
-                        ->select(
-                            'spd.*',
-                            'sp.nama_sparepart',
-                            'sp.kode_sparepart',
-                            'st.nama_satuan'
-                        )
-                        ->where('spd.pembelian_id', $id)
-                        ->get();
-
-            return view('pengadaan-sparepart.show', compact('pengadaan', 'details'));
-
-        } catch (\Exception $e) {
-            return redirect()->route('pengadaan-sparepart.index')
-                           ->with('error', 'Terjadi kesalahan saat memuat detail pengadaan: ' . $e->getMessage());
-        }
-    }
 
     /**
      * Show the form for editing the specified resource.

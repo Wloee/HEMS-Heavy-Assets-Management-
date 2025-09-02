@@ -261,55 +261,5 @@
             return false;
         }
     });
-
-    // Toast notification function
-    function showToast(message, type = 'success') {
-        let toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.id = 'toast-container';
-            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-            toastContainer.style.zIndex = '1055';
-            document.body.appendChild(toastContainer);
-        }
-
-        const toastId = 'toast-' + Date.now();
-        const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
-
-        const toastHTML = `
-            <div id="${toastId}" class="toast ${bgClass} text-white" role="alert">
-                <div class="toast-header ${bgClass} text-white border-0">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
-                    <strong class="me-auto">${type === 'success' ? 'Berhasil' : 'Error'}</strong>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-                </div>
-                <div class="toast-body">
-                    ${message}
-                </div>
-            </div>
-        `;
-
-        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-        const toastElement = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastElement);
-        toast.show();
-
-        toastElement.addEventListener('hidden.bs.toast', function() {
-            toastElement.remove();
-        });
-    }
-
-    // Show success/error messages if exist
-    @if(session('success'))
-        showToast('{{ session('success') }}', 'success');
-    @endif
-
-    @if(session('error'))
-        showToast('{{ session('error') }}', 'error');
-    @endif
-
-    @if($errors->any())
-        showToast('{{ $errors->first() }}', 'error');
-    @endif
 </script>
 @endsection

@@ -647,8 +647,8 @@
                     <span class="custom-dropdown-arrow">▼</span>
                 </a>
                 <div class="custom-dropdown-menu">
-                    <a href="#" class="custom-dropdown-item">Cetak Form Keluhan</a>
-                    <a href="#" class="custom-dropdown-item">Input Data Maintenance</a>
+
+                    <a href="{{ route('Maintanance.index') }}" class="custom-dropdown-item">Input Data Maintenance</a>
                     <a href="#" class="custom-dropdown-item">Data Maintenance</a>
                     <a href="#" class="custom-dropdown-item">Input Plan Maintenance</a>
                     <a href="#" class="custom-dropdown-item">Data Plan Maintenance</a>
