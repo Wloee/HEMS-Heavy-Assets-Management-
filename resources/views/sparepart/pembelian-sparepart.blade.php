@@ -436,6 +436,16 @@
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="mb-3">
+                    <label class="form-label required">merk Sparepart</label>
+                    <input type="text" class="form-control merk-sparepart @error('items[INDEX][merk_sparepart]') is-invalid @enderror"
+                           name="items[INDEX][merk_sparepart]" required placeholder="Masukkan merk sparepart">
+                    @error('items[INDEX][merk_sparepart]')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="mb-3">
                     <label class="form-label required">Kode Sparepart</label>
                     <input type="text" class="form-control kode-sparepart @error('items[INDEX][kode_sparepart]') is-invalid @enderror"
                            name="items[INDEX][kode_sparepart]" required placeholder="Masukkan kode sparepart">

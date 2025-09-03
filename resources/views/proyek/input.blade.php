@@ -288,7 +288,7 @@
                                            class="form-control modern-input @error('invoice_sisa_piutang') is-invalid @enderror"
                                            placeholder="0" step="0.01" min="0"
                                            value="{{ old('invoice_sisa_piutang', isset($proyek) && $proyek->invoices->first() ? $proyek->invoices->first()->sisa_piutang : '') }}">
-                                    <label>Jumlah Tagihan (Rp)</label>
+                                    <label>sisa piutang (Rp)</label>
                                     @error('invoice_sisa_piutang')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

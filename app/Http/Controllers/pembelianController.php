@@ -154,6 +154,7 @@ class pembelianController extends Controller
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
+                    log::info("Sparepart baru ditambahkan dengan ID: {$sparepartId}");
                 } else {
                     $sparepartId = $sparepart->id_sparepart;
                 }

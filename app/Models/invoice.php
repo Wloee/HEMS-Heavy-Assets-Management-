@@ -78,5 +78,23 @@ class Invoice extends Model
 
         return now()->gt($this->tanggal_jatuh_tempo) &&
                !in_array($this->status, ['lunas']);
+    }public static function statusOptions(): array
+    {
+        return [
+            'draft' => ['label' => 'Draft', 'class' => 'badge bg-secondary'],
+            'dibayar_sebagian' => ['label' => 'Dibayar Sebagian', 'class' => 'badge bg-warning'],
+            'lunas' => ['label' => 'Lunas', 'class' => 'badge bg-success'],
+            'jatuh_tempo' => ['label' => 'Jatuh Tempo', 'class' => 'badge bg-danger'],
+        ];
+    }
+
+    public function getStatusLabelAttribute()
+    {
+        return self::statusOptions()[$this->status]['label'] ?? 'Draft';
+    }
+
+    public function getStatusClassAttribute()
+    {
+        return self::statusOptions()[$this->status]['class'] ?? 'badge bg-secondary';
     }
 }

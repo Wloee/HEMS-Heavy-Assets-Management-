@@ -192,7 +192,9 @@ class SparepartController extends Controller
 
             DB::table('sparepart')
                 ->where('id_sparepart', $id)
-                ->delete();
+                ->update([
+                    'is_active' => '0',
+                ]);
 
             DB::commit();
 

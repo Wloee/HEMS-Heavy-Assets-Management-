@@ -630,7 +630,7 @@
                     <span class="custom-dropdown-arrow">▼</span>
                 </a>
                 <div class="custom-dropdown-menu">
-                    <a href="#" class="custom-dropdown-item">Input Laporan Harian Operasional Alat</a>
+                    <a href="{{ route('log-operasional.create') }}" class="custom-dropdown-item">Input Laporan Harian Operasional Alat</a>
                     <a href="#" class="custom-dropdown-item">Data Laporan Harian Operasional Alat</a>
                     <a href="#" class="custom-dropdown-item">Laporan Pemakaian Alat</a>
                     <a href="#" class="custom-dropdown-item">Laporan Operasional Alat</a>
@@ -678,8 +678,8 @@
                     <a href="#" class="custom-dropdown-item">Addendum Proyek</a>
                     <a href="#" class="custom-dropdown-item">Input Invoice Operasional alat</a>
                     <a href="#" class="custom-dropdown-item">Data Invoice Operasional alat</a>
-                    <a href="#" class="custom-dropdown-item">Input Mutasi Alat</a>
-                    <a href="#" class="custom-dropdown-item">Data Mutasi Alat</a>
+                    <a href="{{ route('Mutasi-Unit.create') }}" class="custom-dropdown-item">Input Mutasi Alat</a>
+                    <a href="{{ route('Mutasi-Unit.index') }}" class="custom-dropdown-item">Data Mutasi Alat</a>
                     <a href="#" class="custom-dropdown-item">Riwayat Operasional Alat</a>
                     <a href="#" class="custom-dropdown-item">Rekap Riwayat Operasional Alat</a>
                 </div>
@@ -694,9 +694,9 @@
                     <a href="{{ route('pengadaan-sparepart.create') }}" class="custom-dropdown-item">Input barang / Sparepart baru</a>
                     <a href="{{ route('pengadaan-sparepart.index') }}" class="custom-dropdown-item">Data Barang Sparepart baru</a>
                     <a href="#" class="custom-dropdown-item">Import Data Barang</a>
-                    <a href="#" class="custom-dropdown-item">inventory Sparepart</a>
+                    <a href="{{ route('sparepart.index') }}" class="custom-dropdown-item">inventory Sparepart</a>
                     <a href="#" class="custom-dropdown-item">Konsumsi Langsung</a>
-                    <a href="#" class="custom-dropdown-item">Pembelian Sparepart</a>
+                    <a href="" class="custom-dropdown-item">Pembelian Sparepart</a>
                     <a href="{{route('supplier.index')}}" class="custom-dropdown-item">Suplier Sparepart</a>
                 </div>
             </li>

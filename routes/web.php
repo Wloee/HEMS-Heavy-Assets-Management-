@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/proyek/{id}/addendum/{addendumId}', [\App\Http\Controllers\ProyekController::class, 'destroyAddendum'])->name('addendum.destroy');
 
 
+    route::resource('Mutasi-Unit', \App\Http\Controllers\MutasiUnitController::class)   ;
     Route::prefix('unit')->group(function () {
     Route::get('/', [UnitController::class, 'index'])->name('data_Unit');
     Route::get('/lama', [UnitController::class, 'index'])->name('unit_lama');
@@ -67,8 +68,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/{id}/edit', [UnitController::class, 'edit'])->name('edit_Unit');
     Route::put('/{id}', [UnitController::class, 'update'])->name('Unit_update');
     Route::delete('/{id}', [UnitController::class, 'destroy'])->name('delete_Unit');
-    Route::get('/data', [UnitController::class, 'getData'])->name('unit.getData');
+
+
 });
+    route::resource('log-operasional', \App\Http\Controllers\LogOperasionalController::class);
     // route::prefix('sparepart')->group(function () {
     //     Route::get('/permintaan', [SparepartController::class, 'permintaan'])->name('permintaan.index');
     //     Route::post('/permintaan/store', [SparepartController::class, 'storePermintaan'])->name('permintaan.store');

@@ -230,17 +230,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-3">
-                                                <div class="mb-4">
-                                                    <label class="form-label" style="font-weight:600; color:#374151;">
-                                                        <i class="fas fa-dollar-sign me-2"></i>Harga Beli
-                                                    </label>
-                                                    <p class="form-control-static" style="font-size:14px;">
-                                                        {{ $sparepart->harga_beli_terakhir ? number_format($sparepart->harga_beli_terakhir, 2, ',', '.') : '-' }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
+
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <div class="mb-4">
@@ -274,7 +264,8 @@
                                         </h5>
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <form id="editForm{{ $sparepart->id_sparepart }}" action="{{ route('sparepart.update', $sparepart->id_sparepart) }}" method="POST">
+                                    <form id="editForm{{ $sparepart->id_sparepart }}">
+                                        {{-- // action="{{ route('sparepart.update', $sparepart->id_sparepart) }}" method="POST" --}}
                                         @csrf
                                         @method('PUT')
                                         <div class="modal-body" style="padding:30px;">
@@ -342,18 +333,6 @@
                                                                value="{{ $sparepart->stok_minimum }}" min="0"
                                                                style="padding:12px 15px; border:2px solid #e5e7eb; border-radius:8px; font-size:14px;"
                                                                placeholder="0">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <div class="mb-4">
-                                                        <label for="harga_beli_{{ $sparepart->id_sparepart }}" class="form-label" style="font-weight:600; color:#374151;">
-                                                            <i class="fas fa-shopping-cart me-2"></i>Harga Beli
-                                                        </label>
-                                                        <input type="number" class="form-control" id="harga_beli_{{ $sparepart->id_sparepart }}" name="harga_beli"
-                                                               value="{{ $sparepart->harga_beli_terakhir }}"
-                                                               step="0.01" min="0"
-                                                               style="padding:12px 15px; border:2px solid #e5e7eb; border-radius:8px; font-size:14px;"
-                                                               placeholder="0.00">
                                                     </div>
                                                 </div>
 

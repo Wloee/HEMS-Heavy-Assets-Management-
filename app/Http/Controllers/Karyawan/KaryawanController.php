@@ -89,10 +89,6 @@ class KaryawanController extends Controller
 
    public function store(Request $request)
 {
-    Log::info('=== FORM SUBMISSION STARTED ===');
-    Log::info('Request data:', $request->all());
-    Log::info('Files uploaded:', $request->allFiles());
-
     // Validasi input dengan batas nilai yang sesuai
     $validator = Validator::make($request->all(), [
         // Data Pribadi
@@ -108,12 +104,11 @@ class KaryawanController extends Controller
         'id_departemen' => 'required|exists:departemen,id_departemen',
         'tanggal_bergabung' => 'required|date',
 
-        // Data Penggajian - Tambahkan batas maksimal
+        // Data Penggajian
         'gaji' => 'required|numeric|min:0|max:2147483647',
         'tunjangan' => 'nullable|numeric|min:0|max:2147483647',
         'insentif' => 'nullable|numeric|min:0|max:2147483647',
     ], [
-        // Custom error messages
         'nama_lengkap.required' => 'Nama lengkap wajib diisi',
         'tanggal_lahir.required' => 'Tanggal lahir wajib diisi',
         'nomor_hp.required' => 'Nomor HP/WA wajib diisi',
@@ -134,13 +129,10 @@ class KaryawanController extends Controller
     ]);
 
     if ($validator->fails()) {
-        Log::warning('Validation failed:', $validator->errors()->toArray());
         return back()
             ->withErrors($validator)
             ->withInput();
     }
-
-    Log::info('Validation passed, proceeding with data insertion');
 
     try {
         // Handle file uploads
@@ -149,76 +141,50 @@ class KaryawanController extends Controller
 
         if ($request->hasFile('scan_ktp')) {
             $scanKtpPath = $request->file('scan_ktp')->store('documents/ktp', 'public');
-            Log::info('KTP file uploaded to: ' . $scanKtpPath);
         }
 
         if ($request->hasFile('surat_lamaran')) {
             $suratLamaranPath = $request->file('surat_lamaran')->store('documents/lamaran', 'public');
-            Log::info('Surat lamaran file uploaded to: ' . $suratLamaranPath);
         }
 
-        // Sanitize dan konversi nilai numeric
+        // Konversi nilai numeric
         $gaji = (int) $request->gaji;
         $tunjangan = $request->tunjangan ? (int) $request->tunjangan : 0;
         $insentif = $request->insentif ? (int) $request->insentif : 0;
 
-        // Validasi tambahan untuk memastikan nilai dalam range
-        if ($gaji > 2147483647 || $tunjangan > 2147483647 || $insentif > 2147483647) {
-            throw new \Exception('Nilai gaji, tunjangan, atau insentif melebihi batas maksimal yang diizinkan');
-        }
-
-        Log::info('Creating karyawan record...');
-        Log::info('Processed values - Gaji: ' . $gaji . ', Tunjangan: ' . $tunjangan . ', Insentif: ' . $insentif);
-
+        // Insert data karyawan
         $karyawan = Karyawan::create([
-            // Data Pribadi
-            'nama_lengkap' => $request->nama_lengkap,
+            'nama_karyawan' => $request->nama_lengkap,
             'tanggal_lahir' => $request->tanggal_lahir,
             'no_handphone' => $request->nomor_hp,
             'no_nik' => $request->no_nik,
-
-            // Data Pekerjaan
             'posisi_id' => $request->id_posisi,
             'departemen_id' => $request->id_departemen,
             'tanggal_bergabung' => $request->tanggal_bergabung,
-
-            // Data Penggajian dengan nilai yang sudah divalidasi
             'Gaji' => $gaji,
             'Tunjangan' => $tunjangan,
             'Intensif' => $insentif,
         ]);
 
-        Log::info('Karyawan created with ID: ' . $karyawan->id_karyawan);
-
         // Insert dokumen dengan foreign key
-        Log::info('Inserting dokumen karyawan...');
         DB::table('dokumen_karyawan')->insert([
-            'karyawan_id' => $karyawan->id_karyawan, // Pastikan menggunakan primary key yang benar
+            'karyawan_id' => $karyawan->id_karyawan,
             'image_ktp' => $scanKtpPath,
             'surat_lamaran' => $suratLamaranPath,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        Log::info('Dokumen karyawan inserted successfully');
-        Log::info('=== FORM SUBMISSION COMPLETED SUCCESSFULLY ===');
-
         return redirect('/dashboard')
             ->with('success', 'Data karyawan berhasil ditambahkan!');
 
     } catch (\Exception $e) {
-        Log::error('Error occurred during form submission:');
-        Log::error('Error message: ' . $e->getMessage());
-        Log::error('Error trace: ' . $e->getTraceAsString());
-
         // Delete uploaded files if database insert fails
         if ($scanKtpPath) {
             Storage::disk('public')->delete($scanKtpPath);
-            Log::info('Deleted KTP file due to error: ' . $scanKtpPath);
         }
         if ($suratLamaranPath) {
             Storage::disk('public')->delete($suratLamaranPath);
-            Log::info('Deleted surat lamaran file due to error: ' . $suratLamaranPath);
         }
 
         return back()

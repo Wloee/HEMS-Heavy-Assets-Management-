@@ -18,45 +18,28 @@ class ProyekController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(request $request)
-    {
-        try {
-    $query = DB::table('proyek')
-    ->leftJoin('detail_biaya_pekerjaan', 'proyek.id_proyek', '=', 'detail_biaya_pekerjaan.proyek_id')
-    ->leftJoin('invoice', 'invoice.proyek_id', '=', 'proyek.id_proyek')
-    ->leftJoin('addendum', 'addendum.id_proyek', '=', 'proyek.id_proyek')
-    ->select(
-        'proyek.*',
-        'invoice.status as status_invoice',
-        'detail_biaya_pekerjaan.biaya_total',
-    )
-    ->distinct();
+   public function index(Request $request)
+{
+    try {
+        $query = DB::table('proyek')
+            ->leftJoin('detail_biaya_pekerjaan', 'proyek.id_proyek', '=', 'detail_biaya_pekerjaan.proyek_id')
+            ->leftJoin('invoice', 'invoice.proyek_id', '=', 'proyek.id_proyek')
+            ->select(
+                'proyek.*',
+                DB::raw('SUM(detail_biaya_pekerjaan.biaya_total) as biaya_total'),
+                DB::raw('GROUP_CONCAT(invoice.status) as status_invoice')
+            )
+            ->groupBy('proyek.id_proyek') // penting agar proyek tetap 1 row
+            ->orderBy('proyek.nama_proyek', 'asc'); // urut berdasarkan nama proyek
 
-    // Search filter
-    if ($request->filled('search')) {
-        $search = $request->get('search');
-        $query->where(function ($q) use ($search) {
-            $q->where('proyek.nama_proyek', 'like', '%' . $search . '%')
-              ->orWhere('proyek.nama_client', 'like', '%' . $search . '%');
-        });
+        // Pagination
+        $proyek = $query->paginate(25)->withQueryString();
+
+        return view('proyek.index', compact('proyek'));
+    } catch (\Exception $e) {
+        return back()->with('error', 'Gagal memuat proyek: ' . $e->getMessage());
     }
 
-    // Invoice filter
-    if ($request->filled('status_invoice')) {
-        $query->where('invoice.status', $request->get('status_invoice'));
-    }
-
-
-
-    $proyek = $query->orderBy('proyek.nama_proyek', 'asc')
-                    ->paginate(25)
-                    ->withQueryString();
-
-    return view('proyek.index', compact('proyek'));
-
-} catch (\Exception $e) {
-    return redirect()->back()->withErrors(['error' => 'Failed to load projects: ' . $e->getMessage()]);
-}
 
 }
 
@@ -137,20 +120,24 @@ class ProyekController extends Controller
 //     }
 // }//Failed to load the form: compact(): Undefined variable $jenis_pekerjaan
 
-    public function create()
-    {
-       try {
+
+  public function create()
+{
+    try {
         $jenis_unit = DB::table('jenis_unit')->get();
         $jenis_pekerjaan = DB::table('jenis_pekerjaan')->get();
-        return view('proyek.input', compact('jenis_unit','jenis_pekerjaan'));
-        } catch (\Exception $e) {
-            // Handle any exceptions that may occur
-            return redirect()->back()->withErrors(['error' => 'Failed to load the form: ' . $e->getMessage()]);
-        }
+        $proyek = null; // Tambahkan ini supaya Blade tidak error
+
+        return view('proyek.input', compact('jenis_unit','jenis_pekerjaan','proyek'));
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['error' => 'Failed to load the form: ' . $e->getMessage()]);
     }
+}
+
 
 public function store(Request $request)
 {
+    dd($request->all());
     Log::info('Mulai proses store proyek', ['request' => $request->all()]);
 
     DB::beginTransaction();

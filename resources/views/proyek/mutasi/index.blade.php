@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Manajemen Proyek')
+@section('title', 'Manajemen Unit Proyek')
 
 @section('styles')
 <style>
@@ -23,12 +23,12 @@
     }
 
     .page-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         color: white;
         padding: 32px 24px;
         border-radius: 12px;
         margin-bottom: 24px;
-        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
     }
 
     .page-header h2 {
@@ -47,58 +47,37 @@
         border: none;
     }
 
-    .status-draft {
-        background: linear-gradient(135deg, #6c757d, #495057);
-        color: white;
-    }
-    .status-active {
+    .status-aktif {
         background: linear-gradient(135deg, #28a745, #20c997);
         color: white;
     }
-    .status-completed {
+    .status-selesai {
         background: linear-gradient(135deg, #007bff, #6610f2);
         color: white;
     }
-    .status-pending {
+    .status-ditunda {
         background: linear-gradient(135deg, #ffc107, #fd7e14);
         color: white;
     }
-    .status-cancelled {
-        background: linear-gradient(135deg, #dc3545, #e83e8c);
+
+    .unit-badge {
+        background: linear-gradient(135deg, #17a2b8, #138496);
         color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+        display: inline-block;
     }
 
-    .invoice-paid {
-        color: #28a745;
+    .operator-badge {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        font-size: 0.75rem;
         font-weight: 600;
-        background: #d4edda;
         padding: 4px 8px;
         border-radius: 12px;
-        font-size: 0.8rem;
-    }
-    .invoice-unpaid {
-        color: #dc3545;
-        font-weight: 600;
-        background: #f8d7da;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-    }
-    .invoice-partial {
-        color: #fd7e14;
-        font-weight: 600;
-        background: #ffeaa7;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-    }
-    .invoice-sent {
-        color: #17a2b8;
-        font-weight: 600;
-        background: #d1ecf1;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
+        display: inline-block;
     }
 
     .error-message {
@@ -180,26 +159,6 @@
         opacity: 0.6;
     }
 
-    .addendum-badge {
-        background: linear-gradient(135deg, #6c757d, #495057);
-        border: none;
-        border-radius: 20px;
-        padding: 6px 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-    .addendum-badge:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .addendum-badge a {
-        color: white !important;
-        text-decoration: none !important;
-    }
-
     .currency-amount {
         font-family: 'Courier New', monospace;
         font-weight: 600;
@@ -217,14 +176,20 @@
         margin-bottom: 4px;
     }
 
-    .project-location {
+    .unit-info {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 4px;
+    }
+
+    .unit-type {
         font-size: 0.8rem;
         color: #6c757d;
         font-style: italic;
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #28a745, #20c997);
         border: none;
         border-radius: 8px;
         padding: 12px 24px;
@@ -234,7 +199,7 @@
 
     .btn-primary:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
     }
 
     .form-control, .form-select {
@@ -245,8 +210,8 @@
     }
 
     .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
     }
 
     .input-group-text {
@@ -264,8 +229,19 @@
     }
 
     .pagination .page-item.active .page-link {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        border-color: #667eea;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-color: #28a745;
+    }
+
+    .duration-display {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .operator-info {
+        font-size: 0.9rem;
+        color: #495057;
     }
 
     @media (max-width: 768px) {
@@ -325,11 +301,11 @@
             <div class="page-header">
                 <div class="d-flex justify-content-between align-items-center flex-wrap">
                     <h2>
-                        <i class="fas fa-project-diagram me-3"></i>
-                        Manajemen Proyek
+                        <i class="fas fa-cogs me-3"></i>
+                        Manajemen Mutasi Unit Proyek
                     </h2>
-                    <a href="{{ route('proyek.create') }}" class="btn btn-light mt-3 mt-md-0">
-                        <i class="fas fa-plus me-2"></i>In  put Proyek
+                    <a href="{{ route('Mutasi-Unit.create') }}" class="btn btn-light mt-3 mt-md-0">
+                        <i class="fas fa-plus me-2"></i>Assign Unit ke Proyek
                     </a>
                 </div>
             </div>
@@ -366,8 +342,8 @@
 
             <!-- Search & Filter -->
             <div class="search-container">
-                <form id="searchForm" method="GET" action="{{ route('proyek.index') }}" class="row g-3">
-                    <div class="col-md-6">
+                <form id="searchForm" method="GET" action="{{ route('Mutasi-Unit.index') }}" class="row g-3">
+                    <div class="col-md-4">
                         <label for="search" class="form-label fw-semibold">
                             <i class="fas fa-search me-1"></i>Pencarian
                         </label>
@@ -379,23 +355,41 @@
                                    id="search"
                                    name="search"
                                    class="form-control"
-                                   placeholder="Cari nama proyek atau client..."
+                                   placeholder="Cari nama unit atau proyek..."
                                    value="{{ request('search') }}">
                         </div>
                         <div class="error-message" id="search-error"></div>
                     </div>
 
-                    <div class="col-md-4">
-                        <label for="status_invoice" class="form-label fw-semibold">
-                            <i class="fas fa-file-invoice me-1"></i>Status Invoice
+                    <div class="col-md-3">
+                        <label for="status" class="form-label fw-semibold">
+                            <i class="fas fa-flag me-1"></i>Status
                         </label>
-                        <select id="status_invoice" name="status_invoice" class="form-select">
+                        <select id="status" name="status" class="form-select">
                             <option value="">Semua Status</option>
-                            <option value="paid" {{ request('status_invoice') == 'paid' ? 'selected' : '' }}>Lunas</option>
-                            <option value="unpaid" {{ request('status_invoice') == 'unpaid' ? 'selected' : '' }}>Belum Dibayar</option>
-                            <option value="partial" {{ request('status_invoice') == 'partial' ? 'selected' : '' }}>Sebagian</option>
+                            <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                            <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                            <option value="ditunda" {{ request('status') == 'ditunda' ? 'selected' : '' }}>Ditunda</option>
                         </select>
-                        <div class="error-message" id="status_invoice-error"></div>
+                        <div class="error-message" id="status-error"></div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="proyek_id" class="form-label fw-semibold">
+                            <i class="fas fa-project-diagram me-1"></i>Proyek
+                        </label>
+                        <select id="proyek_id" name="proyek_id" class="form-select">
+                            <option value="">Semua Proyek</option>
+                            @if(isset($proyekList))
+                                @foreach($proyekList as $proyek)
+                                    <option value="{{ $proyek->id_proyek }}"
+                                            {{ request('proyek_id') == $proyek->id_proyek ? 'selected' : '' }}>
+                                        {{ $proyek->nama_proyek }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <div class="error-message" id="proyek_id-error"></div>
                     </div>
 
                     <div class="col-md-2">
@@ -404,7 +398,7 @@
                             <button type="submit" class="btn btn-outline-primary">
                                 <i class="fas fa-filter me-1"></i>Filter
                             </button>
-                            <a href="{{ route('proyek.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('Mutasi-Unit.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-1"></i>Reset
                             </a>
                         </div>
@@ -414,131 +408,111 @@
 
             <!-- Table -->
             <div class="table-container">
-                @if($proyek->count() > 0)
+                @if($unitProyek->count() > 0)
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
                                     <th scope="col" style="width: 5%">#</th>
-                                    <th scope="col" style="width: 20%">Proyek</th>
-                                    <th scope="col" style="width: 15%">Client</th>
+                                    <th scope="col" style="width: 15%">Unit</th>
+                                    <th scope="col" style="width: 18%">Proyek</th>
                                     <th scope="col" style="width: 12%">Tanggal Mulai</th>
                                     <th scope="col" style="width: 12%">Tanggal Selesai</th>
-                                    <th scope="col" style="width: 10%">Status</th>
-                                    <th scope="col" style="width: 10%">Status Invoice</th>
-                                    <th scope="col" style="width: 12%">Total Biaya</th>
-                                    <th scope="col" style="width: 10%">Surat Kontrak</th>
+                                    <th scope="col" style="width: 8%">Status</th>
                                     <th scope="col" style="width: 10%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($proyek as $index => $item)
+                                @foreach($unitProyek as $index => $item)
                                     <tr>
-                                        <td>{{ $proyek->firstItem() + $index }}</td>
+                                       <td>{{ $unitProyek->firstItem() + $index }}</td>
+<td>
+    <div class="unit-info">{{ $item->nama_unit ?? 'N/A' }}</div>
+    @if(!empty($item->tipe_unit))
+        <div class="unit-type">
+            <i class="fas fa-tag me-1"></i>{{ $item->tipe_unit }}
+        </div>
+    @endif
+    @if(!empty($item->no_polisi))
+        <div class="unit-type">
+            <i class="fas fa-car me-1"></i>{{ $item->no_polisi }}
+        </div>
+    @endif
+</td>
+<td>
+    <div class="project-name">{{ $item->nama_proyek ?? 'N/A' }}</div>
+    @if(!empty($item->lokasi_proyek))
+        <div class="unit-type">
+            <i class="fas fa-map-marker-alt me-1"></i>{{ $item->lokasi_proyek }}
+        </div>
+    @endif
+</td>
+
+
                                         <td>
-                                            <div class="project-name">{{ $item->nama_proyek }}</div>
-                                            @if($item->lokasi_proyek)
-                                                <div class="project-location">
-                                                    <i class="fas fa-map-marker-alt me-1"></i>{{ $item->lokasi_proyek }}
+                                            <span class="date-display text-primary">
+                                                {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d/m/Y') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if($item->tanggal_selesai)
+                                                <span class="date-display text-success">
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    {{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d/m/Y') }}
+                                                </span>
+                                                @php
+                                                    $durasi = \Carbon\Carbon::parse($item->tanggal_mulai)
+                                                                ->diffInDays(\Carbon\Carbon::parse($item->tanggal_selesai));
+                                                @endphp
+                                                <div class="duration-display">
+                                                    {{ $durasi }} hari
+                                                </div>
+                                            @else
+                                                @php
+                                                    $durasi = \Carbon\Carbon::parse($item->tanggal_mulai)
+                                                                ->diffInDays(\Carbon\Carbon::now());
+                                                @endphp
+                                                <span class="text-warning">
+                                                    <i class="fas fa-clock me-1"></i>Berlangsung
+                                                </span>
+                                                <div class="duration-display">
+                                                    {{ $durasi }} hari
                                                 </div>
                                             @endif
                                         </td>
                                         <td>
-                                            <strong>{{ $item->nama_client }}</strong>
-                                        </td>
-                                        <td>
-                                            @if($item->tanggal_mulai)
-                                                <span class="date-display text-primary">
-                                                    {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d/m/Y') }}
-                                                </span>
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($item->tanggal_selesai_aktual)
-                                                <span class="date-display text-success">
-                                                    <i class="fas fa-check-circle me-1"></i>
-                                                    {{ \Carbon\Carbon::parse($item->tanggal_selesai_aktual)->format('d/m/Y') }}
-                                                </span>
-                                                        <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        <td>
                                             @php
-                                                $statusClass = match($item->status ?? 'draft') {
-                                                    'draft' => 'status-draft',
-                                                    'aktif' => 'status-active',
-                                                    'selesai' => 'status-completed',
-                                                    'ditunda' => 'status-pending',
-                                                    'dibatalkan' => 'status-cancelled',
-                                                    default => 'status-draft'
+                                                $statusClass = match($item->status) {
+                                                    'aktif' => 'status-aktif',
+                                                    'selesai' => 'status-selesai',
+                                                    'ditunda' => 'status-ditunda',
+                                                    default => 'status-aktif'
                                                 };
-                                                $statusText = match($item->status ?? 'draft') {
-                                                    'draft' => 'Draft',
+                                                $statusText = match($item->status) {
                                                     'aktif' => 'Aktif',
                                                     'selesai' => 'Selesai',
                                                     'ditunda' => 'Ditunda',
-                                                    'dibatalkan' => 'Dibatalkan',
-                                                    default => 'Draft'
+                                                    default => 'Aktif'
                                                 };
                                             @endphp
                                             <span class="badge {{ $statusClass }} status-badge">{{ $statusText }}</span>
                                         </td>
                                         <td>
-                                            @php
-                                                $invoiceStatus = $item->status_invoice ?? 'unpaid';
-                                                $iconClass = match($invoiceStatus) {
-                                                    'terkirim' => 'invoice-sent',
-                                                    'paid' => 'invoice-paid',
-                                                    'partial' => 'invoice-partial',
-                                                    default => 'invoice-unpaid'
-                                                };
-                                                $invoiceText = match($invoiceStatus) {
-                                                    'terkirim' => 'Terkirim',
-                                                    'paid' => 'Lunas',
-                                                    'partial' => 'Sebagian',
-                                                    default => 'Belum Dibayar'
-                                                };
-                                            @endphp
-                                            <span class="{{ $iconClass }}">{{ $invoiceText }}</span>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="currency-amount">
-                                                Rp {{ number_format($item->biaya_total ?? 0, 0, ',', '.') }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if(isset($item->addendum_proyek) && $item->addendum_proyek->count() > 0)
-                                                <span class="badge addendum-badge">
-                                                    <a href="{{ route('proyek.addendum', $item->id_proyek) }}">
-                                                        <i class="fas fa-file-alt me-1"></i>{{ $item->addendum_proyek->count() }}
-                                                    </a>
-                                                </span>
-                                            @else
-                                                <span class="badge addendum-badge">
-                                                    <a href="{{ route('proyek.addendum', $item->id_proyek) }}">
-                                                        <i class="fas fa-plus me-1"></i>Tambah
-                                                    </a>
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td>
                                             <div class="d-flex flex-wrap gap-1">
-                                                <a href="{{ route('proyek.edit', $item->id_proyek) }}"
+                                                <a href="{{ route('Mutasi-Unit.edit', $item->id_unit_proyek) }}"
                                                    class="btn btn-sm btn-outline-primary btn-action"
                                                    title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="{{ route('proyek.show', $item->id_proyek) }}"
+                                                <a href="{{ route('Mutasi-Unit.show', $item->id_unit_proyek) }}"
                                                    class="btn btn-sm btn-outline-info btn-action"
                                                    title="Detail">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <form action="{{ route('proyek.destroy', $item->id_proyek) }}"
+                                                <form action="{{ route('Mutasi-Unit.destroy', $item->id_unit_proyek) }}"
                                                       method="POST"
                                                       style="display: inline-block;"
-                                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus proyek ini?')">
+                                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus assignment unit ini?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -558,27 +532,27 @@
                     <!-- Pagination -->
                     <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
                         <div class="text-muted mb-2 mb-md-0">
-                            Menampilkan {{ $proyek->firstItem() }} - {{ $proyek->lastItem() }}
-                            dari {{ $proyek->total() }} data
+                            Menampilkan {{ $unitProyek->firstItem() }} - {{ $unitProyek->lastItem() }}
+                            dari {{ $unitProyek->total() }} data
                         </div>
-                        {{ $proyek->withQueryString()->links() }}
+                        {{ $unitProyek->withQueryString()->links() }}
                     </div>
                 @else
                     <div class="empty-state">
-                        <i class="fas fa-folder-open"></i>
-                        <h5 class="text-muted mb-3">Tidak ada data proyek</h5>
+                        <i class="fas fa-cogs"></i>
+                        <h5 class="text-muted mb-3">Tidak ada data unit proyek</h5>
                         <p class="text-muted">
-                            @if(request()->hasAny(['search', 'status_invoice']))
+                            @if(request()->hasAny(['search', 'status', 'proyek_id']))
                                 Tidak ditemukan data yang sesuai dengan filter.
                                 <br>
-                                <a href="{{ route('proyek.index') }}" class="btn btn-outline-primary mt-3">
+                                <a href="{{ route('Mutasi-Unit.index') }}" class="btn btn-outline-primary mt-3">
                                     <i class="fas fa-times me-1"></i>Reset Filter
                                 </a>
                             @else
-                                Belum ada proyek yang terdaftar.
+                                Belum ada unit yang di-assign ke proyek.
                                 <br>
-                                <a href="{{ route('proyek.create') }}" class="btn btn-primary mt-3">
-                                    <i class="fas fa-plus me-1"></i>Tambah Proyek Pertama
+                                <a href="{{ route('Mutasi-Unit.create') }}" class="btn btn-primary mt-3">
+                                    <i class="fas fa-plus me-1"></i>Assign Unit Pertama
                                 </a>
                             @endif
                         </p>
@@ -630,13 +604,24 @@
             return errors;
         },
 
-        // Validasi status invoice
-        validateStatusInvoice: function(value) {
+        // Validasi status
+        validateStatus: function(value) {
             const errors = [];
-            const allowedStatuses = ['', 'paid', 'unpaid', 'partial'];
+            const allowedStatuses = ['', 'aktif', 'selesai', 'ditunda'];
 
             if (!allowedStatuses.includes(value)) {
-                errors.push('Status invoice tidak valid');
+                errors.push('Status tidak valid');
+            }
+
+            return errors;
+        },
+
+        // Validasi proyek ID
+        validateProyekId: function(value) {
+            const errors = [];
+
+            if (value && (isNaN(value) || parseInt(value) <= 0)) {
+                errors.push('ID proyek tidak valid');
             }
 
             return errors;
@@ -684,9 +669,13 @@
         const searchErrors = validators.validateSearch(formData.search || '');
         if (!showError('search', searchErrors)) isValid = false;
 
-        // Validasi status invoice
-        const statusErrors = validators.validateStatusInvoice(formData.status_invoice || '');
-        if (!showError('status_invoice', statusErrors)) isValid = false;
+        // Validasi status
+        const statusErrors = validators.validateStatus(formData.status || '');
+        if (!showError('status', statusErrors)) isValid = false;
+
+        // Validasi proyek ID
+        const proyekIdErrors = validators.validateProyekId(formData.proyek_id || '');
+        if (!showError('proyek_id', proyekIdErrors)) isValid = false;
 
         return isValid;
     }
@@ -743,11 +732,19 @@
             });
         }
 
-        const statusSelect = document.getElementById('status_invoice');
+        const statusSelect = document.getElementById('status');
         if (statusSelect) {
             statusSelect.addEventListener('change', function(e) {
-                const errors = validators.validateStatusInvoice(e.target.value);
-                showError('status_invoice', errors);
+                const errors = validators.validateStatus(e.target.value);
+                showError('status', errors);
+            });
+        }
+
+        const proyekSelect = document.getElementById('proyek_id');
+        if (proyekSelect) {
+            proyekSelect.addEventListener('change', function(e) {
+                const errors = validators.validateProyekId(e.target.value);
+                showError('proyek_id', errors);
             });
         }
 
@@ -756,7 +753,8 @@
             searchForm.addEventListener('submit', function(e) {
                 const formData = {
                     search: document.getElementById('search').value,
-                    status_invoice: document.getElementById('status_invoice').value
+                    status: document.getElementById('status').value,
+                    proyek_id: document.getElementById('proyek_id').value
                 };
 
                 if (!validateForm(formData)) {
@@ -781,6 +779,98 @@
         if (errorFields.length > 0) {
             errorFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
+        // Tooltip initialization untuk button actions
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Auto-refresh status untuk unit yang masih aktif
+        if (document.querySelector('.status-aktif')) {
+            setInterval(function() {
+                updateActiveDurations();
+            }, 60000); // Update setiap menit
+        }
     });
+
+    // ============================
+    // FUNGSI TAMBAHAN
+    // ============================
+
+    function updateActiveDurations() {
+        const activeRows = document.querySelectorAll('tr');
+        activeRows.forEach(row => {
+            const statusBadge = row.querySelector('.status-aktif');
+            if (statusBadge) {
+                const durationElement = row.querySelector('.duration-display');
+                if (durationElement && durationElement.textContent.includes('hari')) {
+                    // Update durasi secara real-time jika diperlukan
+                    // Implementasi bisa disesuaikan dengan kebutuhan
+                }
+            }
+        });
+    }
+
+    function exportData(format = 'excel') {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('export', format);
+
+        showLoading();
+        window.location.href = currentUrl.toString();
+
+        setTimeout(() => {
+            hideLoading();
+        }, 3000);
+    }
+
+    // Fungsi untuk print data
+    function printData() {
+        window.print();
+    }
+
+    // // Fungsi untuk bulk action (jika diperlukan di masa depan)
+    // function handleBulkAction(action) {
+    //     const selectedItems = document.querySelectorAll('input[name="selected_items[]"]:checked');
+
+    //     if (selectedItems.length === 0) {
+    //         showToast('Pilih minimal satu item', 'warning');
+    //         return;
+    //     }
+
+    //     if (confirm(`Apakah Anda yakin ingin ${action} ${selectedItems.length} item?`)) {
+    //         const form = document.createElement('form');
+    //         form.method = 'POST';
+    //         form.action = `
+    // { route(
+    // 'Mutasi-Unit.bulk-action') }}`;
+
+    //         // Add CSRF token
+    //         const csrfInput = document.createElement('input');
+    //         csrfInput.type = 'hidden';
+    //         csrfInput.name = '_token';
+    //         csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    //         form.appendChild(csrfInput);
+
+    //         // Add action
+    //         const actionInput = document.createElement('input');
+    //         actionInput.type = 'hidden';
+    //         actionInput.name = 'action';
+    //         actionInput.value = action;
+    //         form.appendChild(actionInput);
+
+    //         // Add selected items
+    //         selectedItems.forEach(item => {
+    //             const hiddenInput = document.createElement('input');
+    //             hiddenInput.type = 'hidden';
+    //             hiddenInput.name = 'selected_items[]';
+    //             hiddenInput.value = item.value;
+    //             form.appendChild(hiddenInput);
+    //         });
+
+    //         document.body.appendChild(form);
+    //         form.submit();
+    //     }
+    }
 </script>
 @endsection

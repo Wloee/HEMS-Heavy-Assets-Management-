@@ -14,7 +14,7 @@ class Karyawan extends Model
         protected $keyType = 'int';
         protected $fillable = [
             // Data Pribadi
-            'nama_lengkap',
+            'nama_karyawan',
             'tanggal_lahir',
             'no_handphone',
             'no_nik',
