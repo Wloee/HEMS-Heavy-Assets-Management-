@@ -8,6 +8,8 @@ use App\Http\Controllers\JenisUnitController;
 use App\Http\Controllers\SuplierController;
 use App\Http\Controllers\Karyawan\KaryawanController;
 use App\Http\Controllers\MaintananceController;
+use App\Http\Controllers\MaintenanceScheduleController;
+
 use App\Http\Controllers\pembelianController;
 use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\UnitController;
@@ -72,6 +74,12 @@ Route::middleware(['auth'])->group(function () {
 
 });
     route::resource('log-operasional', \App\Http\Controllers\LogOperasionalController::class);
+    // AJAX Routes
+Route::get('/log-operasional/{id}/description', [\App\Http\Controllers\LogOperasionalController::class, 'getDescription'])->name('get_LogOperasionalDescription');
+
+// Export Routes
+Route::get('/log-operasional/export/excel', [\App\Http\Controllers\LogOperasionalController::class, 'exportExcel'])->name('export_LogOperasional');
+Route::get('/log-operasional/export/pdf', [\App\Http\Controllers\LogOperasionalController::class, 'exportPDF'])->name('export_LogOperasionalPDF');
     // route::prefix('sparepart')->group(function () {
     //     Route::get('/permintaan', [SparepartController::class, 'permintaan'])->name('permintaan.index');
     //     Route::post('/permintaan/store', [SparepartController::class, 'storePermintaan'])->name('permintaan.store');
@@ -81,6 +89,11 @@ Route::middleware(['auth'])->group(function () {
     // });
 
 
+
+// Atau bisa menggunakan resource route dengan except create dan edit
+// karena kita menggunakan modal untuk form
+Route::resource('maintenance-schedule', MaintenanceScheduleController::class)->except(['create', 'edit']);
+Route::patch('maintenance-schedule/{id}/status', [MaintenanceScheduleController::class, 'updateStatus'])->name('maintenance-schedule.update-status');
 });
 
 

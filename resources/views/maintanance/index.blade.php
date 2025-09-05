@@ -1,942 +1,343 @@
 @extends('layouts.app')
-@section('styles')
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            overflow: hidden;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: pulse 4s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.3; }
-        }
-
-        .header .company-logo {
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 15px;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header h1 {
-            font-size: 2.8em;
-            margin-bottom: 10px;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 1;
-        }
-
-        .header .subtitle {
-            font-size: 1.1em;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-            margin-bottom: 5px;
-        }
-
-        .header .department {
-            font-size: 0.95em;
-            opacity: 0.8;
-            position: relative;
-            z-index: 1;
-        }
-
-        .content {
-            display: flex;
-            min-height: 85vh;
-            gap: 0;
-        }
-
-        .form-section {
-            flex: 1;
-            padding: 40px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-            position: relative;
-        }
-
-        .form-section::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 1px;
-            background: linear-gradient(to bottom, transparent, #e0e6ff, transparent);
-        }
-
-        .preview-section {
-            flex: 1;
-            padding: 40px;
-            background: linear-gradient(135deg, #fafbff 0%, #f0f2ff 100%);
-        }
-
-        .section-title {
-            font-size: 1.5em;
-            color: #667eea;
-            margin-bottom: 30px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title::before {
-            content: '';
-            width: 4px;
-            height: 25px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 2px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            animation: fadeInUp 0.6s ease-out forwards;
-            opacity: 0;
-        }
-
-        .form-group:nth-child(1) { animation-delay: 0.1s; }
-        .form-group:nth-child(2) { animation-delay: 0.2s; }
-        .form-group:nth-child(3) { animation-delay: 0.3s; }
-        .form-group:nth-child(4) { animation-delay: 0.4s; }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #444;
-            font-size: 0.95em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e1e8ff;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: white;
-            font-family: inherit;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 120px;
-            font-family: inherit;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 40px;
-            justify-content: center;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 35px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:active {
-            transform: translateY(-1px);
-        }
-
-        .btn-print {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        }
-
-        .btn-print:hover {
-            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
-        }
-
-        .btn-save {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
-        }
-
-        .btn-save:hover {
-            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.4);
-        }
-
-        /* Print Preview Styles */
-        .print-preview {
-            background: white;
-            border: 3px solid #e1e8ff;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-
-        .print-preview:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-
-        .print-form {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            font-family: 'Arial', sans-serif;
-        }
-
-        .print-form td,
-        .print-form th {
-            border: 2px solid #333;
-            padding: 12px;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        .print-form .header-cell {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            font-size: 18px;
-            padding: 20px;
-        }
-
-        .print-form .field-label {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ebff 100%);
-            font-weight: 600;
-            width: 25%;
-            color: #444;
-        }
-
-        .print-form .field-value {
-            width: 25%;
-            min-height: 35px;
-            background: white;
-        }
-
-        .keluhan-section {
-            height: 150px;
-            vertical-align: top;
-        }
-
-        .diagnosa-section {
-            height: 120px;
-            vertical-align: top;
-        }
-
-        .sparepart-section {
-            height: 100px;
-            vertical-align: top;
-        }
-
-        .team-section {
-            height: 80px;
-            vertical-align: top;
-        }
-
-        /* Print Styles */
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            .container {
-                box-shadow: none;
-                border-radius: 0;
-                max-width: none;
-            }
-
-            .form-section {
-                display: none;
-            }
-
-            .preview-section {
-                padding: 0;
-                background: white;
-            }
-
-            .btn, .btn-group, .section-title, .instructions {
-                display: none !important;
-            }
-
-            .print-preview {
-                border: none;
-                padding: 0;
-                box-shadow: none;
-                margin: 0;
-            }
-
-            .print-form {
-                font-size: 12px;
-            }
-
-            .print-form .header-cell {
-                background: #333 !important;
-                color: white !important;
-            }
-
-            .print-form .field-label {
-                background: #f0f0f0 !important;
-            }
-        }
-
-        .filled-value {
-            color: #333;
-            font-weight: 500;
-        }
-
-        .empty-value {
-            color: #bbb;
-            font-style: italic;
-        }
-
-        .instructions {
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e8 100%);
-            border-radius: 15px;
-            border-left: 5px solid #667eea;
-        }
-
-        .instructions h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .instructions ul {
-            color: #666;
-            line-height: 1.8;
-            list-style: none;
-            padding: 0;
-        }
-
-        .instructions li {
-            padding: 8px 0;
-            position: relative;
-            padding-left: 25px;
-        }
-
-        .instructions li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        /* Loading animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .success-message {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .error-message {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
-        }
-    </style>
-@endsection
 
 @section('content')
-    <div class="container">
-        <div class="header">
-            <div class="company-logo">PT. NAMA PERUSAHAAN ANDA</div>
-            <h1>FORM KELUHAN UNIT/KENDARAAN</h1>
-            <p class="subtitle">Sistem Pelaporan & Manajemen Keluhan</p>
-            <p class="department">Divisi Maintenance & Operations</p>
-        </div>
-
-        <div class="content">
-            <!-- Form Input Section -->
-            <div class="form-section">
-                <h2 class="section-title">
-                    📝 Input Data
-                </h2>
-
-                <form id="complaintForm" method="POST" action="">
-                    @csrf
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="noForm">No. Form:</label>
-                            <input type="text" id="noForm" name="no_form" placeholder="Auto-generated" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tanggal">Tanggal:</label>
-                            <input type="date" id="tanggal" name="tanggal" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="site">Site:</label>
-                            <input type="text" id="site" name="site" placeholder="Masukkan nama site" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="proyek">Proyek:</label>
-                            <input type="text" id="proyek" name="proyek" placeholder="Masukkan nama proyek" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="idSeriUnit">ID/No. Seri Unit:</label>
-                            <input type="text" id="idSeriUnit" name="id_seri_unit" placeholder="Masukkan ID/No. Seri Unit" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="namaUnit">Nama Unit:</label>
-                            <input type="text" id="namaUnit" name="nama_unit" placeholder="Masukkan nama unit" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="kmHm">KM / HM:</label>
-                            <input type="text" id="kmHm" name="km_hm" placeholder="Masukkan KM/HM">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="namaOperator">Nama Operator/PIC:</label>
-                            <input type="text" id="namaOperator" name="nama_operator" placeholder="Masukkan nama operator/PIC" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="keluhan">Keluhan-keluhan:</label>
-                        <textarea id="keluhan" name="keluhan" placeholder="Deskripsikan keluhan secara detail..." required></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="diagnosa">Diagnosa Mekanik:</label>
-                        <textarea id="diagnosa" name="diagnosa" placeholder="Deskripsikan diagnosa secara detail..."></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="sparepart">Sparepart:</label>
-                        <textarea id="sparepart" name="sparepart" placeholder="Deskripsikan sparepart yang dibutuhkan..."></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="teamMekanik">Team Mekanik:</label>
-                        <textarea id="teamMekanik" name="team_mekanik" placeholder="Nama-nama anggota team mekanik..."></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="admin">Admin:</label>
-                        <textarea id="admin" name="admin" placeholder="Informasi admin yang menangani..."></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="penanggungJawab">Penanggung Jawab:</label>
-                        <textarea id="penanggungJawab" name="penanggung_jawab" placeholder="Nama penanggung jawab proyek..."></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="operatorUnit">Operator Unit:</label>
-                        <textarea id="operatorUnit" name="operator_unit" placeholder="Detail operator unit..."></textarea>
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-save" id="saveBtn">💾 Simpan & Cetak Form</button>
-                    </div>
-
-                    <div class="success-message" id="successMessage">
-                        ✅ Data berhasil disimpan!
-                    </div>
-
-                    <div class="error-message" id="errorMessage">
-                        ❌ Terjadi kesalahan saat menyimpan data.
-                    </div>
-                </form>
-            </div>
-
-            <!-- Preview Section -->
-            <div class="preview-section">
-                <h2 class="section-title">
-                    👁️ Preview Cetak
-                </h2>
-
-                <div class="print-preview" id="printPreview">
-                    <table class="print-form">
-                        <tr>
-                            <td colspan="4" class="header-cell">
-                                <div style="text-align: center; line-height: 1.4;">
-                                    <div style="font-size: 14px; margin-bottom: 8px;">PT. NAMA PERUSAHAAN ANDA</div>
-                                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">FORM KELUHAN UNIT/KENDARAAN</div>
-                                    <div style="font-size: 12px; opacity: 0.9;">Divisi Maintenance & Operations</div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="field-label">No. Form</td>
-                            <td class="field-value" id="preview-noForm">-</td>
-                            <td class="field-label">Tanggal</td>
-                            <td class="field-value" id="preview-tanggal">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label">Site</td>
-                            <td class="field-value" id="preview-site">-</td>
-                            <td class="field-label">Proyek</td>
-                            <td class="field-value" id="preview-proyek">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label">ID/No. Seri Unit</td>
-                            <td class="field-value" id="preview-idSeriUnit">-</td>
-                            <td class="field-label">Nama Unit</td>
-                            <td class="field-value" id="preview-namaUnit">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label">KM / HM</td>
-                            <td class="field-value" id="preview-kmHm">-</td>
-                            <td class="field-label">Nama Operator/PIC</td>
-                            <td class="field-value" id="preview-namaOperator">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label keluhan-section">Keluhan-Keluhan</td>
-                            <td colspan="3" class="field-value keluhan-section" id="preview-keluhan">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label diagnosa-section">Diagnosa Mekanik</td>
-                            <td colspan="3" class="field-value diagnosa-section" id="preview-diagnosa">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label sparepart-section">Sparepart</td>
-                            <td colspan="3" class="field-value sparepart-section" id="preview-sparepart">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label team-section">Team Mekanik</td>
-                            <td colspan="3" class="field-value team-section" id="preview-teamMekanik">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label">Admin</td>
-                            <td class="field-value" id="preview-admin">-</td>
-                            <td class="field-label">Penanggung Jawab</td>
-                            <td class="field-value" id="preview-penanggungJawab">-</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label">Operator Unit</td>
-                            <td colspan="3" class="field-value" id="preview-operatorUnit">-</td>
-                        </tr>
-                    </table>
+<div class="content">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px;">
+                <div class="card-body text-center">
+                    <h3 style="font-weight: 700;">{{ $stats['total_keluhan'] }}</h3>
+                    <p style="margin: 0; opacity: 0.9;">Total Keluhan</p>
                 </div>
-
-                <div class="instructions">
-                    <h3>📋 Petunjuk Penggunaan</h3>
-                    <ul>
-                        <li>Isi semua field yang diperlukan pada form</li>
-                        <li>Data akan otomatis tersimpan dan form akan dicetak</li>
-                        <li>Pastikan printer sudah siap sebelum klik tombol</li>
-                        <li>Form akan tersimpan di database secara otomatis</li>
-                    </ul>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: white; border-radius: 15px;">
+                <div class="card-body text-center">
+                    <h3 style="font-weight: 700;">{{ $stats['keluhan_baru'] }}</h3>
+                    <p style="margin: 0; opacity: 0.9;">Keluhan Baru</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; border-radius: 15px;">
+                <div class="card-body text-center">
+                    <h3 style="font-weight: 700;">{{ $stats['keluhan_proses'] }}</h3>
+                    <p style="margin: 0; opacity: 0.9;">Dalam Proses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="background: linear-gradient(135deg, #55a3ff, #003d82); color: white; border-radius: 15px;">
+                <div class="card-body text-center">
+                    <h3 style="font-weight: 700;">{{ $stats['keluhan_selesai'] }}</h3>
+                    <p style="margin: 0; opacity: 0.9;">Selesai</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="demo-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="font-weight:700; color:#1e293b;">Data Keluhan Unit</h2>
+
+            <a href="{{ route('Maintanance.create') }}"
+               style="padding:10px 16px; background:linear-gradient(135deg,#667eea,#764ba2);
+                      color:#fff; font-weight:600; border-radius:10px; text-decoration:none;
+                      box-shadow:0 4px 12px rgba(102,126,234,0.3); transition:0.3s;">
+                <i class="fas fa-plus"></i> Tambah Keluhan
+            </a>
+        </div>
+
+        <!-- Filter Form -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div style="flex:1;">
+                <form action="{{ route('Maintanance.index') }}" method="GET" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" name="search" placeholder="Cari nomor keluhan atau deskripsi..."
+                           value="{{ request('search') }}"
+                           style="padding:10px 15px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; width:300px;">
+
+                    <select name="status" class="form-select" style="width:150px;">
+                        <option value="" {{ !request('status') ? 'selected' : '' }}>Semua Status</option>
+                        <option value="baru" {{ request('status') == 'baru' ? 'selected' : '' }}>Baru</option>
+                        <option value="proses" {{ request('status') == 'proses' ? 'selected' : '' }}>Proses</option>
+                        <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                    </select>
+
+                    <input type="text" name="site" placeholder="Site..."
+                           value="{{ request('site') }}"
+                           style="padding:10px 15px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; width:120px;">
+
+                    <select name="proyek_id" class="form-select" style="width:180px;">
+                        <option value="" {{ !request('proyek_id') ? 'selected' : '' }}>Semua Proyek</option>
+                        @foreach($proyeks as $proyek)
+                            <option value="{{ $proyek->id_proyek }}" {{ request('proyek_id') == $proyek->id_proyek ? 'selected' : '' }}>
+                                {{ $proyek->nama_proyek }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <input type="date" name="tanggal_dari" value="{{ request('tanggal_dari') }}"
+                           style="padding:10px 15px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; width:150px;">
+
+                    <input type="date" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}"
+                           style="padding:10px 15px; border:1px solid #d1d5db; border-radius:8px; font-size:14px; width:150px;">
+
+                    <button type="submit"
+                            style="padding:10px 20px; background:#667eea; color:#fff; border:none; border-radius:8px; cursor:pointer;">
+                        <i class="fas fa-search"></i> Cari
+                    </button>
+
+                    @if(request()->hasAny(['search', 'status', 'site', 'proyek_id', 'tanggal_dari', 'tanggal_sampai']))
+                        <a href="{{ route('Maintanance.index') }}"
+                           style="padding:10px 15px; background:#6b7280; color:#fff; text-decoration:none; border-radius:8px;">
+                            <i class="fas fa-times"></i> Reset
+                        </a>
+                    @endif
+                </form>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x:auto;">
+            <table id="keluhanTable"
+                   style="width:100%; border-collapse:collapse; font-family:'Inter',sans-serif;
+                          background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.05);
+                          min-width: 1400px;">
+                <thead>
+                    <tr style="background:#f5f7fa; color:#334155; text-transform:uppercase; font-size:12px; letter-spacing:0.5px;">
+                        <th style="padding:15px 12px; text-align:center; width:50px;">No</th>
+                        <th style="padding:15px 12px; width:120px;">No Keluhan</th>
+                        <th style="padding:15px 12px; width:100px;">Site</th>
+                        <th style="padding:15px 12px; width:100px;">Tanggal</th>
+                        <th style="padding:15px 12px; width:150px;">Proyek</th>
+                        <th style="padding:15px 12px; width:120px;">Unit</th>
+                        <th style="padding:15px 12px; width:80px;">KM/HM</th>
+                        <th style="padding:15px 12px; width:200px;">Deskripsi</th>
+                        <th style="padding:15px 12px; width:100px;">Pelapor</th>
+                        <th style="padding:15px 12px; width:100px; text-align:center;">Status</th>
+                        <th style="padding:15px 12px; width:100px; text-align:center;">Maintenance</th>
+                        <th style="padding:15px 12px; width:120px; text-align:center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($keluhan as $index => $item)
+                        <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.3s;"
+                            onmouseover="this.style.background='#f8fafc'"
+                            onmouseout="this.style.background='transparent'">
+                            <td style="padding:15px 12px; text-align:center; font-weight:500;">
+                                {{ ($keluhan->currentPage() - 1) * $keluhan->perPage() + $index + 1 }}
+                            </td>
+                            <td style="padding:15px 12px; font-weight:600; color:#667eea;">
+                                {{ $item->no_keluhan }}
+                            </td>
+                            <td style="padding:15px 12px; font-weight:500;">
+                                {{ $item->site }}
+                            </td>
+                            <td style="padding:15px 12px;">
+                                {{ \Carbon\Carbon::parse($item->tanggal_keluhan)->format('d/m/Y') }}
+                            </td>
+                            <td style="padding:15px 12px;">
+                                {{ $item->nama_proyek ?? '-' }}
+                            </td>
+                            <td style="padding:15px 12px;">
+                                <div style="font-weight: 500;">{{ $item->nama_unit ?? '-' }}</div>
+                                <div style="font-size: 11px; color: #6b7280;">{{ $item->nomor_unit ?? '' }}</div>
+                            </td>
+                            <td style="padding:15px 12px; text-align:right; font-weight:500;">
+                                {{ number_format($item->km_hm, 0, ',', '.') }}
+                            </td>
+                            <td style="padding:15px 12px;">
+                                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                     title="{{ $item->deskripsi }}">
+                                    {{ $item->deskripsi }}
+                                </div>
+                            </td>
+                            <td style="padding:15px 12px;">
+                                {{ $item->created_by_name ?? '-' }}
+                            </td>
+
+                            @php
+                                $statusColor = match($item->status) {
+                                    'baru' => '#fbbf24',
+                                    'proses' => '#3b82f6',
+                                    'selesai' => '#10b981',
+                                    default => '#6b7280'
+                                };
+
+                                $statusText = match($item->status) {
+                                    'baru' => 'Baru',
+                                    'proses' => 'Proses',
+                                    'selesai' => 'Selesai',
+                                    default => $item->status
+                                };
+                            @endphp
+
+                            <td style="padding:15px 12px; text-align:center;">
+                                <span style="padding:4px 8px; background:{{ $statusColor }}20; color:{{ $statusColor }};
+                                             border-radius:12px; font-size:11px; font-weight:600; text-transform:uppercase;">
+                                    {{ $statusText }}
+                                </span>
+                            </td>
+
+                            @php
+                                $maintenanceColor = match($item->maintenance_status) {
+                                    'baik' => '#10b981',
+                                    'proses' => '#3b82f6',
+                                    'selesai' => '#059669',
+                                    default => '#d1d5db'
+                                };
+
+                                $maintenanceText = $item->maintenance_status
+                                    ? ucfirst($item->maintenance_status)
+                                    : 'Belum';
+                            @endphp
+
+                            <td style="padding:15px 12px; text-align:center;">
+                                <span style="padding:4px 8px; background:{{ $maintenanceColor }}20; color:{{ $maintenanceColor }};
+                                             border-radius:12px; font-size:11px; font-weight:600; text-transform:uppercase;">
+                                    {{ $maintenanceText }}
+                                </span>
+                            </td>
+
+                            <td style="padding:15px 12px; text-align:center;">
+                                <div style="display:flex; gap:6px; justify-content:center; align-items:center;">
+                                    <a href="{{ route('Maintanance.show', $item->id_keluhan) }}"
+                                       style="background:#3b82f6; padding:8px 10px; border-radius:6px; color:#fff; font-size:12px;
+                                              text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
+                                              transition:all 0.2s; min-width:32px; height:32px;"
+                                       title="Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    @if($item->status !== 'selesai')
+                                        <div class="dropdown" style="display: inline-block;">
+                                            <button class="btn btn-warning btn-sm dropdown-toggle"
+                                                    style="padding:8px 10px; border:none; border-radius:6px; min-width:32px; height:32px;"
+                                                    data-bs-toggle="dropdown" aria-expanded="false" title="Update Status">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                @if($item->status !== 'baru')
+                                                    <li>
+                                                        <form action="" method="POST" style="margin: 0;">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="baru">
+                                                            <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left;">
+                                                                Set ke Baru
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endif
+                                                @if($item->status !== 'proses')
+                                                    <li>
+                                                        <form action="" method="POST" style="margin: 0;">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="proses">
+                                                            <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left;">
+                                                                Set ke Proses
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endif
+                                                <li>
+                                                    <form action="" method="POST" style="margin: 0;">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="selesai">
+                                                        <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left;">
+                                                            Set ke Selesai
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    @endif
+
+                                    <form action="{{ route('Maintanance.destroy', $item->id_keluhan) }}" method="POST"
+                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus data keluhan ini?')"
+                                          style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                style="background:#ef4444; padding:8px 10px; border:none; border-radius:6px;
+                                                       color:#fff; font-size:12px; cursor:pointer; transition:all 0.2s;
+                                                       min-width:32px; height:32px; display:flex; align-items:center; justify-content:center;"
+                                                title="Hapus">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="12" style="text-align:center; padding:40px 20px; color:#6b7280; font-style:italic;">
+                                <i class="fas fa-exclamation-triangle" style="font-size:48px; color:#d1d5db; margin-bottom:16px; display:block;"></i>
+                                Tidak ada data keluhan unit
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div style="color: #6b7280;">
+                Menampilkan {{ $keluhan->firstItem() ?? 0 }} sampai {{ $keluhan->lastItem() ?? 0 }}
+                dari {{ $keluhan->total() }} data
+            </div>
+            {{ $keluhan->appends(request()->query())->links() }}
+        </div>
+    </div>
+</div>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show position-fixed"
+         style="top: 20px; right: 20px; z-index: 1050; min-width: 300px;" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show position-fixed"
+         style="top: 20px; right: 20px; z-index: 1050; min-width: 300px;" role="alert">
+        <i class="fas fa-times-circle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
 @endsection
 
 @section('scripts')
-    <script>
-        // Set tanggal hari ini sebagai default
-        document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
-
-        // Update preview secara real-time
-        function updatePreview() {
-            const fields = [
-                'noForm', 'tanggal', 'site', 'proyek',
-                'idSeriUnit', 'namaUnit', 'kmHm', 'namaOperator',
-                'keluhan', 'diagnosa', 'sparepart', 'teamMekanik',
-                'admin', 'penanggungJawab', 'operatorUnit'
-            ];
-
-            fields.forEach(field => {
-                const inputValue = document.getElementById(field).value;
-                const previewElement = document.getElementById('preview-' + field);
-
-                if (inputValue.trim() !== '') {
-                    previewElement.textContent = inputValue;
-                    previewElement.className = previewElement.className.replace('empty-value', 'filled-value');
-                } else {
-                    previewElement.textContent = '-';
-                    previewElement.className = previewElement.className.replace('filled-value', 'empty-value');
-                }
-            });
-
-            // Format tanggal untuk preview
-            const tanggalInput = document.getElementById('tanggal').value;
-            if (tanggalInput) {
-                const date = new Date(tanggalInput);
-                const options = {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                };
-                document.getElementById('preview-tanggal').textContent =
-                    date.toLocaleDateString('id-ID', options);
-            }
-        }
-
-        // Fungsi untuk mencetak
-        function printForm() {
-            updatePreview();
-
-            const requiredFields = ['site', 'proyek', 'namaUnit', 'namaOperator', 'keluhan'];
-            const emptyFields = [];
-
-            requiredFields.forEach(field => {
-                if (document.getElementById(field).value.trim() === '') {
-                    emptyFields.push(field);
-                }
-            });
-
-            if (emptyFields.length > 0) {
-                alert('Harap isi field yang wajib: ' + emptyFields.join(', '));
-                return;
-            }
-
-            if (confirm('Apakah Anda yakin ingin mencetak form ini?')) {
-                window.print();
-            }
-        }
-
-        // Handle form submission with save and print
-        document.getElementById('complaintForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const saveBtn = document.getElementById('saveBtn');
-            const successMsg = document.getElementById('successMessage');
-            const errorMsg = document.getElementById('errorMessage');
-
-            // Reset messages
-            successMsg.style.display = 'none';
-            errorMsg.style.display = 'none';
-
-            // Validate required fields
-            const requiredFields = ['site', 'proyek', 'idSeriUnit', 'namaUnit', 'namaOperator', 'keluhan'];
-            const emptyFields = [];
-
-            requiredFields.forEach(field => {
-                if (document.getElementById(field).value.trim() === '') {
-                    emptyFields.push(document.querySelector(`label[for="${field}"]`).textContent.replace(':', ''));
-                }
-            });
-
-            if (emptyFields.length > 0) {
-                errorMsg.textContent = 'Harap isi field yang wajib: ' + emptyFields.join(', ');
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            // Add loading state
-            saveBtn.innerHTML = '💾 Menyimpan... <span class="loading"></span>';
-            saveBtn.disabled = true;
-
-            // Update preview before saving
-            updatePreview();
-
-            // Submit to controller
-            fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') || '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    no_form: document.getElementById('noForm').value,
-                    tanggal: document.getElementById('tanggal').value,
-                    site: document.getElementById('site').value,
-                    proyek: document.getElementById('proyek').value,
-                    id_seri_unit: document.getElementById('idSeriUnit').value,
-                    nama_unit: document.getElementById('namaUnit').value,
-                    km_hm: document.getElementById('kmHm').value,
-                    nama_operator: document.getElementById('namaOperator').value,
-                    keluhan: document.getElementById('keluhan').value,
-                    diagnosa: document.getElementById('diagnosa').value,
-                    sparepart: document.getElementById('sparepart').value,
-                    team_mekanik: document.getElementById('teamMekanik').value,
-                    admin: document.getElementById('admin').value,
-                    penanggung_jawab: document.getElementById('penanggungJawab').value,
-                    operator_unit: document.getElementById('operatorUnit').value
-                })
-            })
-            .then(response => {
-                if (response.ok) {
-                    successMsg.textContent = '✅ Data berhasil disimpan! Mencetak form...';
-                    successMsg.style.display = 'block';
-                    clearAutoSave();
-
-                    // Print form after successful save
-                    setTimeout(() => {
-                        window.print();
-                    }, 1000);
-
-                } else {
-                    throw new Error('Network response was not ok');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                errorMsg.textContent = 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.';
-                errorMsg.style.display = 'block';
-            })
-            .finally(() => {
-                saveBtn.innerHTML = '💾 Simpan & Cetak Form';
-                saveBtn.disabled = false;
-            });
+<script>
+    $(document).ready(function() {
+        $('#keluhanTable').DataTable({
+            responsive: true,
+            autoWidth: false,
+            scrollX: true,
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
+            },
+            columnDefs: [
+                { targets: [0], orderable: false },
+                { targets: [6], className: 'text-right' },
+                { targets: [9, 10, 11], orderable: false, className: 'text-center' },
+                { targets: [7], orderable: false } // Deskripsi tidak bisa diurutkan
+            ],
+            pageLength: 15,
+            lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+            order: [[3, 'desc']] // Order by tanggal_keluhan descending
         });
 
-        // Auto-update preview saat mengetik
-        document.addEventListener('DOMContentLoaded', function() {
-            const inputs = document.querySelectorAll('input, textarea, select');
-            inputs.forEach(input => {
-                input.addEventListener('input', updatePreview);
-            });
-
-            // Initial preview update
-            updatePreview();
-        });
-
-        // Generate nomor form otomatis
-        function generateFormNumber() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-
-            return `FKU-${year}${month}${day}-${random}`;
-        }
-
-        // Set nomor form otomatis saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('noForm').value = generateFormNumber();
-            updatePreview();
-        });
-
-        // Real-time validation
-        document.addEventListener('DOMContentLoaded', function() {
-            const requiredInputs = document.querySelectorAll('input[required], textarea[required]');
-
-            requiredInputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    if (this.value.trim() === '') {
-                        this.style.borderColor = '#dc3545';
-                        this.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
-                    } else {
-                        this.style.borderColor = '#28a745';
-                        this.style.boxShadow = '0 0 0 3px rgba(40, 167, 69, 0.1)';
-                    }
-                });
-
-                input.addEventListener('input', function() {
-                    if (this.value.trim() !== '') {
-                        this.style.borderColor = '#28a745';
-                        this.style.boxShadow = '0 0 0 3px rgba(40, 167, 69, 0.1)';
-                    }
-                });
-            });
-        });
-
-        // Add smooth scroll to preview when updating
-        function scrollToPreview() {
-            document.querySelector('.preview-section').scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-
-        // Enhanced update preview with animation
-        function updatePreviewAnimated() {
-            updatePreview();
-
-            // Add pulse animation to preview
-            const preview = document.getElementById('printPreview');
-            preview.style.transform = 'scale(0.98)';
-            preview.style.transition = 'transform 0.2s ease';
-
-            setTimeout(() => {
-                preview.style.transform = 'scale(1)';
-            }, 200);
-        }
-
-        // Auto-save to localStorage for recovery
-        function autoSave() {
-            const formData = {};
-            const inputs = document.querySelectorAll('input, textarea');
-
-            inputs.forEach(input => {
-                if (input.id) {
-                    formData[input.id] = input.value;
-                }
-            });
-
-            localStorage.setItem('complaintFormData', JSON.stringify(formData));
-        }
-
-        // Restore from localStorage
-        function restoreFormData() {
-            const savedData = localStorage.getItem('complaintFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-
-                Object.keys(formData).forEach(key => {
-                    const element = document.getElementById(key);
-                    if (element && formData[key]) {
-                        element.value = formData[key];
-                    }
-                });
-
-                updatePreview();
-            }
-        }
-
-        // Clear auto-save data after successful submission
-        function clearAutoSave() {
-            localStorage.removeItem('complaintFormData');
-        }
-
-        // Initialize auto-save
-        document.addEventListener('DOMColntentLoaded', function() {
-            // Restore previous data if available
-            restoreFormData();
-
-            // Set up auto-save on input changes
-            const inputs = document.querySelectorAll('input, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('input', autoSave);
-            });
-        });
-    </script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    });
+</script>
 @endsection

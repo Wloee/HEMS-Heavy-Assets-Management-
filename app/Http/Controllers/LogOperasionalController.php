@@ -13,10 +13,73 @@ class LogOperasionalController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+
+public function index(Request $request)
+{
+    $query = DB::table('log_operasional as lo')
+        ->leftJoin('unit_proyek as up', 'lo.unit_proyek_id', '=', 'up.id_unit_proyek')
+        ->leftJoin('unit as u', 'up.unit_id', '=', 'u.id_unit')
+        ->leftJoin('karyawan as k', 'lo.operator_id', '=', 'k.id_karyawan')
+        ->select(
+            'lo.*',
+            'up.id_unit_proyek',
+            'u.kode_unit',
+            'u.nama_unit',
+            // 'u.tipe_unit',  // kalau tipe_unit ga ada di tabel unit, hapus aja
+            'k.nama_karyawan',
+        );
+
+    // 🔎 Search filter
+    if ($request->search) {
+        $search = '%' . $request->search . '%';
+        $query->where(function($q) use ($search) {
+            $q->where('u.kode_unit', 'like', $search)
+              ->orWhere('u.nama_unit', 'like', $search)
+              ->orWhere('k.nama_karyawan', 'like', $search)
+              ->orWhere('lo.jenis_pekerjaan', 'like', $search);
+        });
     }
 
+    // 🔧 Unit filter
+    if ($request->unit_proyek_id) {
+        $query->where('lo.unit_proyek_id', $request->unit_proyek_id);
+    }
+
+    // 👷 Operator filter
+    if ($request->operator_id) {
+        $query->where('lo.operator_id', $request->operator_id);
+    }
+
+    // 📅 Date range filter
+    if ($request->tanggal_dari) {
+        $query->whereDate('lo.tanggal_operasi', '>=', $request->tanggal_dari);
+    }
+    if ($request->tanggal_sampai) {
+        $query->whereDate('lo.tanggal_operasi', '<=', $request->tanggal_sampai);
+    }
+
+    // 🔽 Sorting & Pagination
+    $logOperasional = $query->orderBy('lo.tanggal_operasi', 'desc')
+                            ->orderBy('lo.id_log', 'desc')
+                            ->paginate(25);
+
+    // Dropdown Units
+    $units = DB::table('unit_proyek as up')
+        ->join('unit as u', 'up.unit_id', '=', 'u.id_unit')
+        ->where('u.status_operasional', '!=', 'tidak_aktif')
+        ->select('up.id_unit_proyek', 'u.kode_unit', 'u.nama_unit')
+        ->orderBy('u.kode_unit')
+        ->get();
+
+    // Dropdown Operators
+    $operators = DB::table('karyawan as k')
+        ->where('k.status', 'aktif')
+        ->wherein('k.posisi_id', [2,1,3,])
+        ->orderBy('k.nama_karyawan')
+        ->get();
+
+    return view('operasional.index', compact('logOperasional', 'units', 'operators'));
+}
     /**
      * Display the specified resource.
      */
@@ -353,9 +416,8 @@ public function store(Request $request)
                     'id_karyawan',
                     'nama_karyawan',
                     'kode_karyawan',
-                    'jabatan',
                     'divisi',
-                    DB::raw("CONCAT(nama_karyawan, ' - ', kode_karyawan, ' (', jabatan, ')') as display_name")
+                    DB::raw("CONCAT(nama_karyawan, ' - ', kode_karyawan, ' as display_name")
                 )
                 ->where('status', 'aktif')
                 ->whereIn('jabatan', ['Operator', 'Driver', 'Mekanik', 'Helper']);

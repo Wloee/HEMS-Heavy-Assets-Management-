@@ -631,7 +631,7 @@
                 </a>
                 <div class="custom-dropdown-menu">
                     <a href="{{ route('log-operasional.create') }}" class="custom-dropdown-item">Input Laporan Harian Operasional Alat</a>
-                    <a href="#" class="custom-dropdown-item">Data Laporan Harian Operasional Alat</a>
+                    <a href="{{ route('log-operasional.index') }}" class="custom-dropdown-item">Data Laporan Harian Operasional Alat</a>
                     <a href="#" class="custom-dropdown-item">Laporan Pemakaian Alat</a>
                     <a href="#" class="custom-dropdown-item">Laporan Operasional Alat</a>
                     <a href="#" class="custom-dropdown-item">Laporan Rekap Operasional Alat</a>
@@ -648,10 +648,9 @@
                 </a>
                 <div class="custom-dropdown-menu">
 
-                    <a href="{{ route('Maintanance.index') }}" class="custom-dropdown-item">Input Data Maintenance</a>
-                    <a href="#" class="custom-dropdown-item">Data Maintenance</a>
-                    <a href="#" class="custom-dropdown-item">Input Plan Maintenance</a>
-                    <a href="#" class="custom-dropdown-item">Data Plan Maintenance</a>
+                    <a href="{{ route('Maintanance.create') }}" class="custom-dropdown-item">Input Data Maintenance</a>
+                    <a href="{{ route('Maintanance.index') }}" class="custom-dropdown-item">Data Maintenance</a>
+                    <a href="{{ route('maintenance-schedule.index') }}" class="custom-dropdown-item">Data Plan Maintenance</a>
                 </div>
             </li>
 
