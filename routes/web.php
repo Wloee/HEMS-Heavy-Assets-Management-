@@ -45,6 +45,11 @@ Route::middleware(['auth'])->group(function () {
     //Resource untuk Jenis unit
     Route::resource('jenis-unit', JenisUnitController::class)->except('show');
     Route::resource('Maintanance', MaintananceController::class);
+   Route::get('/biaya', [MaintananceController::class, 'biaya'])->name('biaya.index');
+   Route::get('/biaya/data', [MaintananceController::class, 'data_biaya'])->name('data_biaya');
+   Route::get('/biaya/edit', [MaintananceController::class, 'biaya_edit'])->name('biaya_edit');
+
+    Route::put('/biaya/update/{id}', [MaintananceController::class, 'biaya_update'])->name('biaya.update');
     //Resource untuk Suplier
     Route::resource('supplier', SuplierController::class);
     Route::resource('pengadaan-sparepart', pembelianController::class);
@@ -94,6 +99,11 @@ Route::get('/log-operasional/export/pdf', [\App\Http\Controllers\LogOperasionalC
 // karena kita menggunakan modal untuk form
 Route::resource('maintenance-schedule', MaintenanceScheduleController::class)->except(['create', 'edit']);
 Route::patch('maintenance-schedule/{id}/status', [MaintenanceScheduleController::class, 'updateStatus'])->name('maintenance-schedule.update-status');
+// ROute untuk Transaksi kas
+   Route::get('/kas', [\App\Http\Controllers\TransaksiKasController::class, 'create'])->name('kas.create');
+   Route::post('/kas/store', [\App\Http\Controllers\TransaksiKasController::class, 'store'])->name('kas.store');
+   Route::post('/metode/store', [\App\Http\Controllers\TransaksiKasController::class, 'storeMetode'])->name('metode.store');
+
 });
 
 

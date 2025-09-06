@@ -660,8 +660,8 @@
                     <span class="custom-dropdown-arrow">▼</span>
                 </a>
                 <div class="custom-dropdown-menu">
-                    <a href="#" class="custom-dropdown-item">Biaya Maintanance</a>
-                    <a href="#" class="custom-dropdown-item">Data Biaya Maintanance</a>
+                    <a href="{{ route('biaya.index') }}" class="custom-dropdown-item">Biaya Maintanance</a>
+                    <a href="{{ route('data_biaya') }}" class="custom-dropdown-item">Data Biaya Maintanance</a>
                 </div>
             </li>
 
@@ -717,7 +717,7 @@
                     <span class="custom-dropdown-arrow">▼</span>
                 </a>
                 <div class="custom-dropdown-menu">
-                    <a href="#" class="custom-dropdown-item">Input Kas Harian</a>
+                    <a href="{{ route('kas.create') }}" class="custom-dropdown-item">Input Kas Harian</a>
                     <a href="#" class="custom-dropdown-item">laporan Kas harian</a>
                     <a href="#" class="custom-dropdown-item">Laporan Kas Bulanan</a>
                     <a href="#" class="custom-dropdown-item">laporang Bank harian</a>

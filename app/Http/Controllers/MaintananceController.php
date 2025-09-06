@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use ILluminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Support\Facades\Validator;
 
@@ -247,7 +248,7 @@ class MaintananceController extends Controller
                 'update_at' => now(),
             ]);
 
-            // 2. Insert maintenance_log
+            // 2. Insert maintanance_log
             $logId = DB::table('maintanance_log')->insertGetId([
                 'Keluhan_id' => $keluhanId,
                 'diagnosa' => $request->diagnosa,
@@ -257,7 +258,8 @@ class MaintananceController extends Controller
                 'admin_id' => $request->admin_id,
                 'Mekanik_id' => $request->mekanik_id,
                 'Status' => $request->status_maintenance,
-                'Created_at' => now(),
+                'Created_at'
+                 => now(),
                 'Updated_at' => now(),
             ]);
 
@@ -361,4 +363,277 @@ class MaintananceController extends Controller
             ]);
         }
     }
-}
+
+
+    public function biaya()
+    {
+        try {
+            // Fixed table name and improved query
+            $maintenance = DB::table('maintanance_log') // tiadak perlu di ganti karena sudah sesuai
+                ->select(['created_at', 'id_log', 'diagnosa']) // Added more context fields
+                ->whereNull('biaya_aktual')
+                ->whereNull('biaya_estimasi')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return view('biaya.index', compact('maintenance'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengambil data maintenance.');
+        }
+    }
+
+    public function biaya_update(Request $request, string $id)
+    {
+        // Enhanced validation
+        $request->validate([
+            'maintenance_id' => 'required|integer|exists:maintanance_log,id_log',
+            'biaya_aktual'   => 'required|numeric|min:0',
+            'biaya_estimasi' => 'required|numeric|min:0',
+            'deviasi_persen' => 'required|numeric',
+            'bukti'          => 'nullable|image|mimes:jpg,jpeg,png,pdf|max:5120', // Allow PDF and larger size
+        ], [
+            'maintenance_id.required' => 'Maintenance harus dipilih.',
+            'maintenance_id.exists' => 'Data maintenance tidak ditemukan.',
+            'biaya_aktual.required' => 'Biaya aktual harus diisi.',
+            'biaya_aktual.min' => 'Biaya aktual tidak boleh negatif.',
+            'biaya_estimasi.required' => 'Biaya estimasi harus diisi.',
+            'biaya_estimasi.min' => 'Biaya estimasi tidak boleh negatif.',
+            'deviasi_persen.required' => 'Deviasi persen harus diisi.',
+            'bukti.image' => 'File bukti harus berupa gambar atau PDF.',
+            'bukti.max' => 'Ukuran file bukti maksimal 5MB.',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Handle file upload
+            $buktiPath = null;
+            if ($request->hasFile('bukti')) {
+                // Delete old file if exists
+                $oldRecord = DB::table('maintanance_log')
+                    ->where('id_log', $request->maintenance_id)
+                    ->first();
+
+                if ($oldRecord && $oldRecord->bukti) {
+                    Storage::disk('public')->delete($oldRecord->bukti);
+                }
+
+                $buktiPath = $request->file('bukti')->store('bukti_pembayaran', 'public');
+            }
+
+            // Calculate deviation automatically
+            $deviasi_persen = 0;
+            if ($request->biaya_estimasi > 0) {
+                $deviasi_persen = (($request->biaya_aktual - $request->biaya_estimasi) / $request->biaya_estimasi) * 100;
+            }
+
+            // Update maintanance_log (using your table name)
+            $updated = DB::table('maintanance_log')
+                ->where('id_log', $request->maintenance_id)
+                ->update([
+                    'biaya_aktual'   => $request->biaya_aktual,
+                    'biaya_estimasi' => $request->biaya_estimasi,
+                    'deviasi_persen' => round($deviasi_persen, 2),
+                    'bukti'    => $buktiPath,
+                    'status'         => 'proses', // Add status tracking (if column exists)
+                    'updated_at'     => now(),
+                    'Updated_by'     => auth()->id(), // Track who updated (using your column name)
+                ]);
+
+            if (!$updated) {
+                throw new \Exception('Gagal mengupdate data maintenance.');
+            }
+
+            DB::commit();
+
+            return redirect()->route('biaya.index')
+                ->with('success', 'Data biaya berhasil disimpan!');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            // Delete uploaded file if transaction failed
+            if ($buktiPath) {
+                Storage::disk('public')->delete($buktiPath);
+            }
+
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
+        }
+    }
+
+    public function data_biaya(Request $request)
+    {
+        $query = DB::table('maintanance_log as ml')
+            ->leftJoin('keluhan_unit as ku', 'ml.Keluhan_id', '=', 'ku.id_keluhan')
+            ->leftJoin('karyawan as operator', 'ml.operator_id', '=', 'operator.id_karyawan')
+            ->leftJoin('karyawan as admin', 'ml.admin_id', '=', 'admin.id_karyawan')
+            ->leftJoin('karyawan as mekanik', 'ml.Mekanik_id', '=', 'mekanik.id_karyawan')
+            ->select([
+                'ml.id_Log',
+                'ml.diagnosa',
+                'ml.Mulai_dikerjakan',
+                'ml.Selesai_dikerjakan',
+                'ml.Status',
+                'ml.biaya_aktual',
+                'ml.biaya_estimasi',
+                'ml.deviasi_persen',
+                'ml.bukti',
+                'ml.Created_at',
+                'ml.Updated_at',
+                // Informasi keluhan
+                'ku.deskripsi',
+                // Informasi karyawan
+                'operator.nama_karyawan as operator_nama',
+                'admin.nama_karyawan as admin_nama',
+                'mekanik.nama_karyawan as mekanik_nama',
+                // Perhitungan biaya tambahan
+                DB::raw('CASE
+                    WHEN ml.biaya_aktual IS NOT NULL AND ml.biaya_estimasi IS NOT NULL
+                    THEN (ml.biaya_aktual - ml.biaya_estimasi)
+                    ELSE NULL
+                END as selisih_biaya'),
+                DB::raw('CASE
+                    WHEN ml.biaya_aktual IS NOT NULL AND ml.biaya_estimasi IS NOT NULL
+                    THEN CASE
+                        WHEN ml.biaya_aktual > ml.biaya_estimasi THEN "Over Budget"
+                        WHEN ml.biaya_aktual < ml.biaya_estimasi THEN "Under Budget"
+                        ELSE "Sesuai Budget"
+                    END
+                    ELSE "Belum Ada Data"
+                END as status_budget'),
+                DB::raw('DATEDIFF(ml.Selesai_dikerjakan, ml.Mulai_dikerjakan) as durasi_hari')
+            ]);
+
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('ml.Status', $request->status);
+        }
+
+        // Filter berdasarkan rentang tanggal
+        if ($request->filled('tanggal_mulai')) {
+            $query->where('ml.Mulai_dikerjakan', '>=', $request->tanggal_mulai);
+        }
+
+        if ($request->filled('tanggal_selesai')) {
+            $query->where('ml.Selesai_dikerjakan', '<=', $request->tanggal_selesai);
+        }
+
+        // Filter berdasarkan range biaya
+        if ($request->filled('biaya_min')) {
+            $query->where('ml.biaya_aktual', '>=', $request->biaya_min);
+        }
+
+        if ($request->filled('biaya_max')) {
+            $query->where('ml.biaya_aktual', '<=', $request->biaya_max);
+        }
+
+        // Filter berdasarkan status budget
+        if ($request->filled('status_budget')) {
+            switch ($request->status_budget) {
+                case 'over':
+                    $query->whereRaw('ml.biaya_aktual > ml.biaya_estimasi');
+                    break;
+                case 'under':
+                    $query->whereRaw('ml.biaya_aktual < ml.biaya_estimasi');
+                    break;
+                case 'sesuai':
+                    $query->whereRaw('ml.biaya_aktual = ml.biaya_estimasi');
+                    break;
+            }
+        }
+
+        // Filter berdasarkan deviasi persentase
+        if ($request->filled('deviasi_min')) {
+            $query->where('ml.deviasi_persen', '>=', $request->deviasi_min);
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'ml.Created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        $allowedSortFields = [
+            'ml.Created_at',
+            'ml.Mulai_dikerjakan',
+            'ml.Selesai_dikerjakan',
+            'ml.biaya_aktual',
+            'ml.biaya_estimasi',
+            'ml.deviasi_persen',
+            'durasi_hari'
+        ];
+
+        if (in_array($sortBy, $allowedSortFields)) {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 15);
+        $maintenanceLogs = $query->paginate($perPage);
+
+        // Statistik biaya untuk dashboard
+        $costStatistics = $this->getCostStatistics($request);
+
+        return view('biaya.data', compact('maintenanceLogs', 'costStatistics'));
+    }
+
+    /**
+     * Mendapatkan statistik biaya maintenance
+     */
+    private function getCostStatistics($request = null)
+    {
+        $query = DB::table('maintanance_log');
+
+        // Terapkan filter yang sama jika ada
+        if ($request) {
+            if ($request->filled('tanggal_mulai')) {
+                $query->where('Mulai_dikerjakan', '>=', $request->tanggal_mulai);
+            }
+
+            if ($request->filled('tanggal_selesai')) {
+                $query->where('Selesai_dikerjakan', '<=', $request->tanggal_selesai);
+            }
+        }
+
+        return $query->select([
+            DB::raw('COUNT(*) as total_maintenance'),
+            DB::raw('SUM(biaya_aktual) as total_biaya_aktual'),
+            DB::raw('SUM(biaya_estimasi) as total_biaya_estimasi'),
+            DB::raw('AVG(biaya_aktual) as rata_rata_biaya_aktual'),
+            DB::raw('AVG(biaya_estimasi) as rata_rata_biaya_estimasi'),
+            DB::raw('AVG(deviasi_persen) as rata_rata_deviasi'),
+            DB::raw('COUNT(CASE WHEN biaya_aktual > biaya_estimasi THEN 1 END) as jumlah_over_budget'),
+            DB::raw('COUNT(CASE WHEN biaya_aktual < biaya_estimasi THEN 1 END) as jumlah_under_budget'),
+            DB::raw('COUNT(CASE WHEN Status = "selesai" THEN 1 END) as jumlah_selesai'),
+            DB::raw('COUNT(CASE WHEN Status = "proses" THEN 1 END) as jumlah_proses'),
+            DB::raw('MAX(biaya_aktual) as biaya_tertinggi'),
+            DB::raw('MIN(biaya_aktual) as biaya_terendah')
+        ])->first();
+    }
+    public function biaya_edit(){
+        return 'halo rek';
+    }
+
+    // Additional method to show cost details
+//     public function biaya_show($id)
+//     {
+//         try {
+//             $maintenance = DB::table('maintanance_log')
+//                 ->where('id_log', $id)
+//                 ->first();
+
+//             if (!$maintenance) {
+//                 return redirect()->route('dashboard')
+//                     ->with('error', 'Data maintenance tidak ditemukan.');
+//             }
+
+//             return view('biaya.show', compact('maintenance'));
+//         } catch (\Exception $e) {
+//             return redirect()->route('dashboard')
+//                 ->with('error', 'Terjadi kesalahan saat mengambil data.');
+//         }
+
+// }
+
+  }
